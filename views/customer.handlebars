@@ -23,35 +23,72 @@
 
 <br>
 
-<h5>Order History</h5>
+<h5>Customer History</h5>
 <!-- TODO: create AJAX to populate tables based on buttons pressed -->
-<button>Pending Orders</button>
-<button>Completed Orders</button>
+<button>Order History</button>
+<button>Service History</button>
 
 <br><br>
 
-<h5>Service History</h5>
-<button>Pending Services & Repairs</button>
-<button>Completed Services & Repairs</button>
-
-<br><br>
-
-<h5>Pending Orders</h5>
+<h5>Recent Orders</h5>
 <table>
   <thead>
     <td>Order Number</td>
     <td>Order Date</td>
-    <td>Expedite?</td>
+    <td>Order Priority</td>
+    <td>Order Status</td>
     <td>Pickup or Ship?</td>
+    <td>Order Details</td>
     <td>Cancel Order</td>
   </thead>
   <tbody>
     <tr>
       <td>1234</td>
-      <td>1/1/2021</td>
-      <td>Yes</td>
-      <td>Ship</td>
+      <td>2/1/2021</td>
+      <td>Expedite</td>
+      <td>In process</td>
+      <td>Pickup</td>
+      <td><button>Details</button></td>
       <td><button>Cancel</button></td>
+    </tr>
+    <tr>
+      <td>1211</td>
+      <td>1/1/2021</td>
+      <td>Normal</td>
+      <td>Complete</td>
+      <td>Ship</td>
+      <td><button>Details</button></td>
+      <td><button disabled='disabled'>Cancel</button></td>
+    </tr>
+  </tbody>
+</table>
+
+<br><br>
+
+<h5>Recent Services</h5>
+<table>
+  <thead>
+    <td>Service Number</td>
+    <td>Request Date</td>
+    <td>Service Status</td>
+    <td>Service Details</td>
+    <td>Cancel Order</td>
+    <td></td>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1234</td>
+      <td>2/1/2021</td>
+      <td>In process</td>
+      <td><button>View Details</button></td>
+      <td><button>Cancel service</button></td>
+    </tr>
+    <tr>
+      <td>1212</td>
+      <td>1/1/2021</td>
+      <td>Complete</td>
+      <td><button>View Details</button></td>
+      <td><button disabled='disabled'>Cancel service</button></td>
     </tr>
   </tbody>
 </table>

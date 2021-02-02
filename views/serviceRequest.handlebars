@@ -1,0 +1,52 @@
+<link rel="stylesheet" href="client_style_services.css">
+
+<div id="header">
+  <h1>Beave's Bikes</h1>
+</div>
+
+
+<nav id="navbar">
+  <div>
+    <a href="/">Home</a>
+    <a href="/catalog">Catalog</a>
+    <a href="/services"><b>Services</b></a>
+    <a href="/customer">Customer Portal</a>
+  </div>
+</nav>
+<br>
+<h2>Service Requests</h2>
+<form action="/serviceRequest" method="POST" id="serviceRequestForm">
+    <label for="customerID">Customer ID:</label>
+    <input type="text" name="customerID" id="customerID" disabled value={{customerId}}>
+    {{#unless cust_id}}
+    <button id='signInButton'>Sign In or Create Account</button>
+    {{/unless}}
+    <br>
+    <!-- TODO: link signin button to customer portal page -->
+    <label for="requestDate">Request Date:</label>
+    <input type="date" name='requestDate' id="requestDate"><br>
+    <label for="serviceName">Requested Service:</label>
+    <select name="serviceName" id="serviceName">
+        <option value="">--Please select a service--</option>
+        {{#each services}}
+            <option value={{this.id}}>{{this.name}}: ${{this.price}}</option>
+        {{/each}}
+    </select><button id="chooseService">Select</button>
+    <br><br>
+    <h5>Chosen Services:</h5>
+    <!-- TODO: create a hidden list, span, or table to track chosen service IDs -->
+    <br>
+    <div>
+      Total Cost: $<span id="totalCost">0</span>
+    </div>
+    <br>
+    <br>
+    <h4>Payment Info</h4>   
+    <label for="credit_card_num">Credit Card Number:</label>
+    <input type="text" name="credit_card_num" id="credit_card_num" minlength="16" maxlength="16"><br>
+    <label for="credit_card_exp">Credit Card Expiration Date:</label>
+    <input type="date" name="credit_card_exp" id="credit_card_exp"><br>
+    <input type="submit" value="Submit Request">
+</form>
+
+<script type="text/javascript" src="client_script_serviceRequest.js"></script>

@@ -1,0 +1,29 @@
+<link rel="stylesheet" href="client_style_services.css">
+
+<div id="header">
+  <h1>Beave's Bikes</h1>
+</div>
+
+
+<nav id="navbar">
+  <div>
+    <a href="/">Home</a>
+    <a href="/catalog">Catalog</a>
+    <a href="/services"><b>Services</b></a>
+    <a href="/customer">Customer Portal</a>
+  </div>
+</nav>
+
+<br>
+<form action="/serviceRequest">
+    <input type="submit" value="Create Service Request">
+</form>
+<br>
+<h3>Services Provided:</h3>
+<ul>
+{{#each services}}
+    <li>
+        {{this.name}}: ${{this.price}}
+    </li>
+{{/each}}
+</ul>

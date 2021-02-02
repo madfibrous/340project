@@ -1,0 +1,49 @@
+<div id="header">
+  <h1>Beave's Bikes</h1>
+</div>
+
+
+<nav id="navbar">
+  <div>
+    <a href="/">Home</a>
+    <a href="/catalog"><b>Catalog</b></a>
+    <a href="/services">Services</a>
+    <a href="/customer">Customer Portal</a>
+  </div>
+  <div id="subNavBar">
+    <a href="/bicycles">bicycles</a>
+    <a href="/gear">gear</a>
+    <a href="/clothing"><b>clothing</b></a>
+  </div>
+</nav>
+
+</br>
+
+<h4>Filter by</h4>
+<form action="">
+  size:
+  <select name="size" id="sizeFilter">
+    <option value="L">Large</option>
+    <option value="M">Medium</option>
+  </select>
+  gender:
+  <select name="size" id="genderFilter">
+    <option value="men">Men</option>
+    <option value="women">Women</option>
+  </select>
+  <input type="submit" name="searchClothes" value='Search'>
+</form>
+
+<div class='row'>
+  {{#if clothing}}
+      {{#each clothing}}
+      <div class='col-4'>
+          <img id="clothingImage"
+          src="https://img.icons8.com/carbon-copy/2x/clothes.png"
+          width="128" height="128">
+          <span>${{this.price}}</span>
+          <span>{{this.name}}</span>
+      </div>
+      {{/each}}
+  {{/if}}
+</div>

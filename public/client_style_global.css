@@ -12,3 +12,7 @@ nav > div > a{
     background-color: rgb(196, 196, 196);
     padding: 1% 5%;
 }
+
+#navbar > #subNavBar {
+    padding:0% 5%;
+}

@@ -25,6 +25,36 @@ app.get('/',function(req,res){
     res.render('home',context)
 })
 
+app.get('/bicycles', function(req,res){
+    var context = {};
+    var bikes = [
+      {name:"Schwinn Road Bike",price:350.00},
+      {name:"Raleigh Mountain Bike",price:450.00},
+    ]
+    context.bikes = bikes;
+    res.render('catalogBicycles',context)
+})
+
+app.get('/clothing', function(req,res){
+  var context = {};
+  var clothing = [
+    {name:"T shirt",price:20},
+    {name:"Biking shoes 10M",price:100},
+  ]
+  context.clothing = clothing;
+  res.render('catalogClothing',context)
+})
+
+app.get('/gear', function(req,res){
+  var context = {};
+  var gear = [
+    {name:"headlight",price:40},
+    {name:"grip tape",price:30},
+  ]
+  context.gear = gear;
+  res.render('catalogGear',context)
+})
+
 app.get('/catalog',function(req,res){
   var context = {}
   //sample data

@@ -17,30 +17,36 @@
 <button type="button">Parts&ensp;</button>
 <button type="button">Clothing/Gear&ensp;</button>
 <div class='row'>
-  <div class='col-4'>
+  
   {{#if bikeCatalog}}
       {{#each bikeCatalog}}
+      <div class='col-4'>
           <img id="bikeImage" src="https://cdn.iconscout.com/icon/free/png-256/bicycle-1498113-1268563.png" width="128" height="128">
           <span>{{this.price}}</span>
           <span>{{this.name}}</span>
+      </div>
       {{/each}}
   {{/if}}
   {{#if clothingCatalog}}
       {{#each clothingCatalog}}
+        <div class='col-4'>
           <img id="clothingImage"
           src="https://img.icons8.com/carbon-copy/2x/clothes.png"
           width="128" height="128">
           <span>{{this.price}}</span>
           <span>{{this.name}}</span>
+        </div>
       {{/each}}
   {{/if}}
   {{#if gearCatalog}}
       {{#each gearCatalog}}
+        <div class='col-4'>
           <img id="gearImage"
           src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.iconfinder.com%2Ficons%2F995610%2Fgear_icon&psig=AOvVaw18hejPJJAwjiVOWLoqyUYx&ust=1612322058232000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCKiSyu6dyu4CFQAAAAAdAAAAABAD"
           width="128" height="128">
           <span>{{this.price}}</span>
           <span>{{this.name}}</span>
+        </div>
       {{/each}}
   {{/if}}
   </br>

@@ -27,6 +27,22 @@ app.get('/',function(req,res){
 
 app.get('/catalog',function(req,res){
   var context = {}
+  //sample data
+  var bikeCatalog = [
+    {name:"Schwinn Road Bike",price:350.00},
+    {name:"Raleigh Mountain Bike",price:450.00},
+  ]
+  var clothingCatalog = [
+    {name:"T shirt",price:20},
+    {name:"Biking shoes 10M",price:100},
+  ]
+  var gearCatalog = [
+    {name:"headlight",price:40},
+    {name:"grip tape",price:30},
+  ]
+  context.bikeCatalog = bikeCatalog;
+  context.clothingCatalog = clothingCatalog;
+  context.gearCatalog = gearCatalog;
   res.render('catalog',context)
 })
 

@@ -13,9 +13,12 @@
 </nav>
 
 </br>
-<button type="button">Bikes&ensp;</button>
-<button type="button">Parts&ensp;</button>
-<button type="button">Clothing/Gear&ensp;</button>
+<h3>Filter by Type</h3>
+<select name="productType" id="productType">
+  <option value="bikes">Bikes</option>
+  <option value="clothing">Clothing</option>
+  <option value="gear">Gear</option>
+</select>
 <div class='row'>
   <div class='col-4'>
   {{#if bikeCatalog}}

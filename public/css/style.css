@@ -1,0 +1,82 @@
+body {
+  background-color: #C3B59F;
+}
+
+h1{
+  color: #4A6670; 
+}
+
+#toDoHeader{
+  color: #D35269;
+  text-decoration: underline;
+}
+
+#completedHeader{
+  color: #668F80;
+  text-decoration: underline;
+}
+
+#urgentTask{
+  background-color: #E85D75;
+}
+
+textarea{
+  overflow-y: scroll;
+  height: 100px;
+}
+
+#navLinksUl{
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #505050;
+}
+
+#liLink{
+  float: left;
+}
+
+
+li a{
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover{
+  background-color: #3d3d3d;
+}
+
+.slideshow{
+  max-width: 500px;
+  position: relative;
+  margin: auto;
+  float: left;
+}
+
+.slide{
+  display:none;
+}
+
+.prev, .next{
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  width: auto;
+  margin-top: -22px;
+  padding: 16px;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  transition: 0.6s ease;
+  border-radius: 0 3px 3px 0;
+  user-select: none;
+}
+
+.next{
+  right: 0;
+  border-radius: 3px 0 0 3px;
+}

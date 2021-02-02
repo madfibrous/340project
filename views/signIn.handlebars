@@ -1,0 +1,40 @@
+<div id="header">
+  <h1>Beave's Bikes</h1>
+</div>
+
+
+<nav id="navbar">
+  <div>
+    <a href="/">Home</a>
+    <a href="/catalog">Catalog</a>
+    <a href="/services">Services</a>
+    <a href="/customer"><b>Customer Portal</b></a>
+  </div>
+</nav>
+
+<h3>Sign In</h3>
+<form action="/customer" method="POST">
+    <label for="cust_id">Customer ID:</label>
+    <input type="text" name='cust_id' id="cust_id">
+    <input type="submit" name="Sign in" value="Sign in">
+</form>
+
+<br>
+
+<h3>Create New Account</h3>
+<form action="/customer" method="POST">
+    <label for="fname">first name:</label>
+    <input type="text" name="fname" id="fname">
+    <label for="lname">last name:</label>
+    <input type="text" name="lname" id="lname">
+    <br>
+    <label for="address">Address:</label>
+    <input type="text" name="address" id="address"><br>
+    <label for="city">City:</label>
+    <input type="text" name="city" id="city">
+    <label for="zip">Zip:</label>
+    <input type="text" name="zip" id="zip"><br>
+    <label for="phone">Phone:</label>
+    <input type="text" name="phone" id="phone">
+    <input type="submit" name="Create Account" value="Create Account">
+</form>

@@ -1,0 +1,14 @@
+#header {
+    padding:2% 0%;
+}
+
+nav > div > a{
+	margin: 0px 1rem;
+	color: black;
+}
+
+#navbar > div {
+    border: 0.1rem;
+    background-color: rgb(196, 196, 196);
+    padding: 1% 5%;
+}

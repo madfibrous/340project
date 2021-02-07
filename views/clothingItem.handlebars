@@ -1,13 +1,46 @@
-<h1>Clothin Item</h1>
+<div id="header">
+  <h1>Beave's Bikes</h1>
+</div>
+
+
+<nav id="navbar">
+  <div>
+    <a href="/">Home</a>
+    <a href="/catalog"><b>Catalog</b></a>
+    <a href="/services">Services</a>
+    <a href="/customer">Customer Portal</a>
+  </div>
+  <div id="subNavBar">
+    <a href="/bicycles">Bicycles</a>
+    <a href="/gear">Gear</a>
+    <a href="/clothing">Clothing</a>
+  </div>
+</nav>
+
+<h1>Clothing Item</h1>
 </br>
 <div>
   <img id="clothingImage"
   src="https://img.icons8.com/carbon-copy/2x/clothes.png"
   width="128" height="128">
   <h2>Clothing Description</h2>
-  {{clothing.name}}
-  {{clothing.price}}
-  {{clothing.size}}
-  {{clothing.gender}}
+  {{#if clothing}}
+  {{#each clothing}}
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Size</th>
+        <th>Gender</th>
+      </tr>
+      <tr>
+          <td>{{this.name}}</td>
+          <td>${{this.price}}</td>
+          <td>{{this.size}}</td>
+          <td>{{this.gender}}</td>
+      </tr>
+    </table>
+  {{/each}}
+  {{/if}}
 </div>
 </br>

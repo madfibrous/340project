@@ -28,52 +28,77 @@ app.get('/',function(req,res){
 app.get('/bicycles', function(req,res){
     var context = {};
     var bikes = [
-      {name:"Schwinn Road Bike",price:350.00},
-      {name:"Raleigh Mountain Bike",price:450.00},
-    ]
+      {make: "Schwinn", model: "Flyer 29", size: "L", color: "Blue", 
+        type: "Road", price: 850.00},
+      {make: "Kona", model: "Honzo 29", size: "L", color: "Red", 
+        type: "Mountain", price: 1350.00}]
     context.bikes = bikes;
     res.render('catalogBicycles',context)
 })
 
+app.get('/bikeItem', function(req,res){
+    var context = {};
+    var bike = [
+      {make: "Schwinn", model: "Flyer 29", size: "L", color: "Blue", 
+        type: "Road", price: 850.00}]
+    context.bike = bike;
+    res.render('bikeItem', context)
+});
+
 app.get('/clothing', function(req,res){
   var context = {};
   var clothing = [
-    {name:"T shirt",price:20},
-    {name:"Biking shoes 10M",price:100},
+    {name:"T shirt",price:20, size: "L", gender: "M"},
+    {name:"Biking shorts",price:100, size: "L", gender: "M"},
+    {name:"Wool socks",price:30, size: "L", gender: "U"}
   ]
   context.clothing = clothing;
   res.render('catalogClothing',context)
 })
 
+app.get('/clothingItem', function(req,res){
+    var context = {};
+    var clothing = [{name: "TShirt", price: 20.00, size: "L", gender: "M"}]
+    context.clothing = clothing;
+    res.render('clothingItem', context)
+});
+
 app.get('/gear', function(req,res){
   var context = {};
   var gear = [
-    {name:"headlight",price:40},
-    {name:"grip tape",price:30},
+    {name:"Headlight",price:40.00},
+    {name:"Helmet",price:50.00}
   ]
   context.gear = gear;
   res.render('catalogGear',context)
 })
 
+app.get('/gearItem', function(req,res){
+    var context = {};
+    var gear = [{name: "Headlight", price: 40.00}]
+    context.gear = gear;
+    res.render('gearItem', context)
+});
 app.get('/catalog',function(req,res){
   var context = {}
   //sample data
   var bikeCatalog = [
-    {name:"Schwinn Road Bike",price:350.00},
-    {name:"Raleigh Mountain Bike",price:450.00},
-  ]
+      {make: "Schwinn", model: "Flyer 29", size: "L", color: "Blue",
+          type: "Road", price: 850.00}]
   var clothingCatalog = [
-    {name:"T shirt",price:20},
-    {name:"Biking shoes 10M",price:100},
+    {name:"T shirt",price:20, size: "L", gender: "M"},
+    {name:"Biking shorts",price:100, size: "L", gender: "M"},
+    {name:"Wool socks",price:30, size: "L", gender: "U"},
   ]
   var gearCatalog = [
-    {name:"headlight",price:40},
-    {name:"grip tape",price:30},
+    {name:"Headlight",price:40.00},
+    {name:"Helmet",price:50.00}
   ]
   context.bikeCatalog = bikeCatalog;
   context.clothingCatalog = clothingCatalog;
   context.gearCatalog = gearCatalog;
   res.render('catalog',context)
+
 })
 
 app.get('/orders',function(req,res){

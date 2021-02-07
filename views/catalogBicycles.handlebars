@@ -11,9 +11,9 @@
     <a href="/customer">Customer Portal</a>
   </div>
   <div id="subNavBar">
-    <a href="/bicycles"><b>bicycles</b></a>
-    <a href="/gear">gear</a>
-    <a href="/clothing">clothing</a>
+    <a href="/bicycles"><b>Bicycles</b></a>
+    <a href="/gear">Gear</a>
+    <a href="/clothing">Clothing</a>
   </div>
 </nav>
 
@@ -54,9 +54,12 @@
   {{#if bikes}}
       {{#each bikes}}
       <div class='col-4'>
-          <img id="bikeImage" src="https://cdn.iconscout.com/icon/free/png-256/bicycle-1498113-1268563.png" width="128" height="128">
+          <img id="bikeImage" src="/pictures/productpage/bikeIcon.png"
+          onclick="javascript:window.location='./bikeItem';">
+          </br>
+          <span>{{this.make}}</span>
+          <span>{{this.model}}&emsp;</span>
           <span>${{this.price}}</span>
-          <span>{{this.name}}</span>
       </div>
       {{/each}}
   {{/if}}

@@ -11,9 +11,9 @@
     <a href="/customer">Customer Portal</a>
   </div>
   <div id="subNavBar">
-    <a href="/bicycles">bicycles</a>
-    <a href="/gear">gear</a>
-    <a href="/clothing"><b>clothing</b></a>
+    <a href="/bicycles">Bicycles</a>
+    <a href="/gear">Gear</a>
+    <a href="/clothing"><b>Clothing</b></a>
   </div>
 </nav>
 
@@ -21,15 +21,17 @@
 
 <h4>Filter by</h4>
 <form action="">
-  size:
+  Size:
   <select name="size" id="sizeFilter">
+    <option value="XL">Extra Large</option>
     <option value="L">Large</option>
     <option value="M">Medium</option>
+    <option value="S">Small</option>
   </select>
-  gender:
+  Gender:
   <select name="size" id="genderFilter">
-    <option value="men">Men</option>
-    <option value="women">Women</option>
+    <option value="male">Male</option>
+    <option value="female">Female</option>
   </select>
   <input type="submit" name="searchClothes" value='Search'>
 </form>
@@ -40,9 +42,11 @@
       <div class='col-4'>
           <img id="clothingImage"
           src="https://img.icons8.com/carbon-copy/2x/clothes.png"
-          width="128" height="128">
+          width="128" height="128"
+          onclick ="javascript:window.location='./clothingItem';">
+          </br>
+          <span>{{this.name}}&emsp;</span>
           <span>${{this.price}}</span>
-          <span>{{this.name}}</span>
       </div>
       {{/each}}
   {{/if}}

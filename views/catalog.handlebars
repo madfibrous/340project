@@ -11,9 +11,9 @@
     <a href="/customer">Customer Portal</a>
   </div>
   <div id="subNavBar">
-    <a href="/bicycles">bicycles</a>
-    <a href="/gear">gear</a>
-    <a href="/clothing">clothing</a>
+    <a href="/bicycles">Bicycles</a>
+    <a href="/gear">Gear</a>
+    <a href="/clothing">Clothing</a>
   </div>
 </nav>
 
@@ -24,7 +24,8 @@
   {{#if bikeCatalog}}
       {{#each bikeCatalog}}
       <div class='col-4'>
-          <img id="bikeImage" src="pictures/productpage/bikeIcon.png">>
+          <img id="bikeImage" src="pictures/productpage/bikeIcon.png"
+          onclick="javascript:window.location='./bikeItem';">
           <span>${{this.price}}</span>
           <span>{{this.name}}</span>
       </div>
@@ -35,7 +36,8 @@
         <div class='col-4'>
           <img id="clothingImage"
           src="pictures/productpage/clothingIcon.png"
-          width="128" height="128">
+          width="128" height="128"
+          onclick ="javascript:window.location='./clothingItem';">
           <span>${{this.price}}</span>
           <span>{{this.name}}</span>
         </div>
@@ -46,7 +48,8 @@
         <div class='col-4'>
           <img id="gearImage"
           src= "pictures/productpage/gearIcon.png"
-          width="128" height="128">
+          width="128" height="128"
+          onclick ="javascript:window.location='./gearItem';">
           <span>${{this.price}}</span>
           <span>{{this.name}}</span>
         </div>

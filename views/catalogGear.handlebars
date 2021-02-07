@@ -11,9 +11,9 @@
     <a href="/customer">Customer Portal</a>
   </div>
   <div id="subNavBar">
-    <a href="/bicycles">bicycles</a>
-    <a href="/gear"><b>gear</b></a>
-    <a href="/clothing">clothing</a>
+    <a href="/bicycles">Bicycles</a>
+    <a href="/gear"><b>Gear</b></a>
+    <a href="/clothing">Clothing</a>
   </div>
 </nav>
 
@@ -21,20 +21,24 @@
 
 <h4>Filter by</h4>
 <form action="">
-  name:
+  Product Name:
   <input type="text">
   <input type="submit" name='searchGear' value="Search">
 </form>
+
+</br>
 
 <div class='row'>
   {{#if gear}}
       {{#each gear}}
       <div class='col-4'>
           <img id="gearImage"
-          src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.iconfinder.com%2Ficons%2F995610%2Fgear_icon&psig=AOvVaw18hejPJJAwjiVOWLoqyUYx&ust=1612322058232000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCKiSyu6dyu4CFQAAAAAdAAAAABAD"
-          width="128" height="128">
+          src ="pictures/productpage/gearIcon.png"
+          width="128" height="128"
+          onclick ="javascript:window.location='./gearItem';">
+          </br>
+          <span>{{this.name}}&emsp;</span>
           <span>${{this.price}}</span>
-          <span>{{this.name}}</span>
       </div>
       {{/each}}
   {{/if}}

@@ -48,7 +48,7 @@ app.get('/bikeItem', function(req,res){
 app.get('/clothing', function(req,res){
   var context = {};
   var clothing = [
-    {name:"T shirt",price:20, size: "L", gender: "M"},
+    {name:"Capilene T-shirt",price:20, size: "L", gender: "M"},
     {name:"Biking shorts",price:100, size: "L", gender: "M"},
     {name:"Wool socks",price:30, size: "L", gender: "U"}
   ]

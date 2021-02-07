@@ -26,8 +26,13 @@
       <div class='col-4'>
           <img id="bikeImage" src="pictures/productpage/bikeIcon.png"
           onclick="javascript:window.location='./bikeItem';">
-          <span>${{this.price}}</span>
-          <span>{{this.name}}</span>
+          </br>
+          <span>{{this.make}}</span>
+          <span>{{this.model}}&emsp;</span>
+          </br>
+          <span>Size: {{this.size}}</span>
+          </br>
+          <span>Price: ${{this.price}}</span>
       </div>
       {{/each}}
   {{/if}}
@@ -38,8 +43,12 @@
           src="pictures/productpage/clothingIcon.png"
           width="128" height="128"
           onclick ="javascript:window.location='./clothingItem';">
-          <span>${{this.price}}</span>
+          </br>
           <span>{{this.name}}</span>
+          </br>
+          <span>Size: {{this.size}}</span>
+          </br>
+          <span>Price: ${{this.price}}</span>
         </div>
       {{/each}}
   {{/if}}
@@ -50,8 +59,10 @@
           src= "pictures/productpage/gearIcon.png"
           width="128" height="128"
           onclick ="javascript:window.location='./gearItem';">
-          <span>${{this.price}}</span>
+          </br>
           <span>{{this.name}}</span>
+          </br>
+          <span>Price: ${{this.price}}</span>
         </div>
       {{/each}}
   {{/if}}

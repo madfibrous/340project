@@ -1,0 +1,176 @@
+<div id="header">
+  <h1>Beave's Bikes</h1>
+</div>
+
+<nav id="navbar">
+  <div>
+    <a href="/">Home</a>
+    <a href="/catalog">Catalog</a>
+    <a href="/services">Services</a>
+    <a href="/customer">Customer Portal</a>
+    <a href="/admin"><b>Admin</b></a>
+  </div>
+</nav>
+
+<h4>Customer Search</h4>
+<form action="POST" id="customerSearch">
+    <label for="fname">First Name:</label>
+    <input type="text" name="fname" id="fname">
+    <label for="lname">Last Name:</label>
+    <input type="text" name="lname" id="lname"><br>
+    <label for="address">Address:</label>
+    <input type="text" name="address" id="address"><br>
+    <label for="city">City:</label>
+    <input type="text" name="city" id="city">
+    <label for="zip">Zip Code:</label>
+    <input type="text" name="zip" id="zip"><br>
+    <label for="phone">Phone number:</label>
+    <input type="text" name="phone" id="phone">
+    <input type="submit" name="searchCustomer" value="Search">
+</form><br>
+
+<h4>Add New Bike</h4>
+<form action="POST" id="bikeInsert">
+    <label for="bikeMake">Make:</label>
+    <input type="text" name="make" id="bikeMake">
+    <label for="bikeModel">Model:</label>
+    <input type="text" name="model" id="bikeModel"><br>
+    <label for="bikeSize">Size:</label>
+    <input type="text" name="size" id="bikeSize">
+    <label for="bikeColor">Color:</label>
+    <input type="text" name="color" id="bikeColor">
+    <label for="bikeType">Type:</label>
+    <select name="type" id="bikeType">
+        <option value="road">Road Bike</option>
+        <option value="mountain">Mountain Bike</option>
+    </select><br>
+    <label for="bikeColor">Color:</label>
+    <input type="text" name="color" id="bikeColor">
+    <label for="bikePrice">Price:</label>
+    <input type="text" name="price" id="bikePrice">
+    <label for="bikeQty">Quantity:</label>
+    <input type="text" name="qty" id="bikeQty">
+    <input type="submit" name="addBike" value="Add">
+</form><br>
+
+<h4>Add New Clothing:</h4>
+<form action="POST" id="clothingInsert">
+    <label for="clothingName">Name:</label>
+    <input type="text" name="name" id="clothingName">
+    <label for="clothingSize">Size:</label>
+    <select name="size" id="clothingSize">
+        <option value="xs">Extra small</option>
+        <option value="s">Small</option>
+        <option value="m">Medium</option>
+        <option value="l">Large</option>
+        <option value="xl">Extra Large</option>
+    </select>
+    <label for="clothingGender">Gender:</label>
+    <select name="gender" id="clothingGender">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="unisex">Unisex</option>
+    </select><br>
+    <label for="clothingPrice">Price:</label>
+    <input type="text" name="price" id="clothingPrice">
+    <label for="clothingQty">Quantity:</label>
+    <input type="text" name="qty" id="clothingQty">
+    <input type="submit" name="addClothing" value="Add">
+</form><br>
+
+<h4>Add New Gear:</h4>
+<form action="POST" id="gearInsert">
+    <label for="gearName">Name:</label>
+    <input type="text" name="name" id="gearName">
+    <label for="gearPrice">Price:</label>
+    <input type="text" name="price" id="gearPrice">
+    <label for="gearQty">Quantity:</label>
+    <input type="text" name="qty" id="gearQty">
+    <input type="submit" name="addGear" value="Add">
+</form><br>
+
+<h4>Update Order Item:</h4>
+<form action="POST" id="updateOrderItem">
+    <label for="order_num">Order Num:</label>
+    <input type="text" name="order_num" id="order_num">
+    <label for="catalog_id">Catalog_id:</label>
+    <input type="text" name="catalog_id" id="catalog_id">
+    <label for="shipping_date">Shipping Date:</label>
+    <input type="date" name="shipping_date" id="shipping_date">
+    <input type="submit" name="shippedItem" value="Shipped">
+</form><br>
+
+<h4>Update Repair Request Item:</h4>
+<form action="POST" id="updateOrderItem">
+    <label for="repair_id">Repair ID:</label>
+    <input type="text" name="repair_id" id="repair_id">
+    <label for="service_id">Service ID:</label>
+    <input type="text" name="service_id" id="service_id">
+    <input type="submit" name="repairComplete" value="Complete">
+</form><br>
+
+<h4>Update Bike</h4>
+<form action="POST" id="updateBike">
+    <label for="updateBikeId">Update by Catalog Num:</label>
+    <input type="text" name="catalog_id" id="updateBikeId"><button>Search</button><br> 
+    <label for="updateBikeMake">Make:</label>
+    <input type="text" name="make" id="updateBikeMake">
+    <label for="updateBikeModel">Model:</label>
+    <input type="text" name="model" id="updateBikeModel"><br>
+    <label for="updateBikeSize">Size:</label>
+    <input type="text" name="size" id="updateBikeSize">
+    <label for="updateBikeColor">Color:</label>
+    <input type="text" name="color" id="updateBikeColor">
+    <label for="updateBikeType">Type:</label>
+    <select name="type" id="updateBikeType">
+        <option value="road">Road Bike</option>
+        <option value="mountain">Mountain Bike</option>
+    </select><br>
+    <label for="updateBikeColor">Color:</label>
+    <input type="text" name="color" id="updateBikeColor">
+    <label for="updateBikePrice">Price:</label>
+    <input type="text" name="price" id="updateBikePrice">
+    <label for="updateBikeQty">Quantity:</label>
+    <input type="text" name="qty" id="updateBikeQty">
+    <input type="submit" name="updateBike" value="Update">
+</form><br>
+
+<h4>Update Clothing:</h4>
+<form action="POST" id="updateClothing">
+    <label for="updateClothingId">Update by Catalog Num:</label>
+    <input type="text" name="catalog_id" id="updateClothingId"><button>Search</button><br>
+    <label for="updateClothingName">Name:</label>
+    <input type="text" name="name" id="updateClothingName">
+    <label for="updateClothingSize">Size:</label>
+    <select name="size" id="updateClothingSize">
+        <option value="xs">Extra small</option>
+        <option value="s">Small</option>
+        <option value="m">Medium</option>
+        <option value="l">Large</option>
+        <option value="xl">Extra Large</option>
+    </select>
+    <label for="updateClothingGender">Gender:</label>
+    <select name="gender" id="updateClothingGender">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="unisex">Unisex</option>
+    </select><br>
+    <label for="updateClothingPrice">Price:</label>
+    <input type="text" name="price" id="updateClothingPrice">
+    <label for="updateClothingQty">Quantity:</label>
+    <input type="text" name="qty" id="updateClothingQty">
+    <input type="submit" name="updateClothing" value="Update">
+</form><br>
+
+<h4>Update Gear:</h4>
+<form action="POST" id="updateGear">
+    <label for="updateGearId">Update by Catalog Num:</label>
+    <input type="text" name="catalog_id" id="updateGearId"><button>Search</button><br>
+    <label for="updateGearName">Name:</label>
+    <input type="text" name="name" id="updateGearName">
+    <label for="updateGearPrice">Price:</label>
+    <input type="text" name="price" id="updateGearPrice">
+    <label for="updateGearQty">Quantity:</label>
+    <input type="text" name="qty" id="updateGearQty">
+    <input type="submit" name="updateGear" value="Update">
+</form><br>

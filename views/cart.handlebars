@@ -1,0 +1,58 @@
+<div id="header">
+  <h1>Beave's Bikes</h1>
+</div>
+
+
+<nav id="navbar">
+  <div>
+    <a href="/">Home</a>
+    <a href="/catalog"><b>Catalog</b></a>
+    <a href="/services">Services</a>
+    <a href="/customer">Customer Portal</a>
+    <a href="/cart">Cart</a>
+  </div>
+  <div id="subNavBar">
+    <a href="/bicycles"><b>Bicycles</b></a>
+    <a href="/gear">Gear</a>
+    <a href="/clothing">Clothing</a>
+  </div>
+</nav>
+
+
+<h1>Your Cart</h1>
+</br>
+<div id= "cart_div">
+ <table>
+     <tr>
+      <th>Name</th>
+      <th>Qty</th>
+      <th>Price</th>
+     </tr>
+  {{#if cart}}
+    {{#each cart}}
+      <tr>
+          <td>
+              {{#if_eq this.itemType "B"}}
+                {{this.make}} {{this.model}}
+                {{else}}
+                  {{this.name}}
+              {{/if_eq}}
+          </td>
+          <td>
+            <input id= "productQty" type="number" name="quantity" value ="1">
+          </td>
+          <td id= "price">
+            ${{this.price}}
+          <td>
+            <!-- Form for Remove Item -->
+            <button id="type="button" >Remove item</button>
+          </td>
+      </tr>
+    {{/each}}
+  {{/if}}  
+ </table>
+</div>
+
+</br>
+
+<button type="button" onclick="window.location.href='/orders';">Go to checkout</button>

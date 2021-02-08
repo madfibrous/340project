@@ -152,6 +152,11 @@ app.get('/orders',function(req,res){
   res.render('orders',context)
 })
 
+app.get('/admin',function(req,res){
+  var context= {};
+  res.render('admin',context)
+})
+
 app.get('/services',function(req,res){
   mysql.pool.query('SELECT * FROM bsg_planets', function(err,results){
     var fakeResults = [{name:"Tire Replacement", price:"30"}, {name:"Bottom Bracket Bearings", price:"50"}, {name:"Headset Bearings", price:"50"}]

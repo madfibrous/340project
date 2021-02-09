@@ -130,9 +130,11 @@ app.get('/catalog',function(req,res){
   //sample data
   var bikeCatalog = [
       {make: "Schwinn", model: "Flyer 29", size: "L", color: "Blue",
-          type: "Road", price: 850.00, itemType: "B"}]
+          type: "Road", price: 850.00, itemType: "B"},
+      {make: "Kona", model: "Honzo 29", size: "L", color: "Red", 
+          type: "Mountain", price: 1350.00, itemType: "B"}]
   var clothingCatalog = [
-    {name:"T shirt",price:20, size: "L", gender: "M", itemType: "C"},
+    {name:"Capilene T-shirt",price:20, size: "L", gender: "M", itemType: "C"},
     {name:"Biking shorts",price:100, size: "L", gender: "M", itemType: "C"},
     {name:"Wool socks",price:30, size: "L", gender: "U", itemType: "C"},
   ]

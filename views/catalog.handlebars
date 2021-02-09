@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="client_style_catalogItem.css">
+
 <div id="header">
   <h1>Beave's Bikes</h1>
 </div>
@@ -26,7 +28,7 @@
   {{#if bikeCatalog}}
       {{#each bikeCatalog}}
       <div class='col-4'>
-          <img id="bikeImage" src="pictures/productpage/bikeIcon.png"
+          <img class="brightness" id="bikeImage" src="pictures/productpage/bikeIcon.png"
           onclick="javascript:window.location='./bikeItem';">
           </br>
           <span>{{this.make}}</span>

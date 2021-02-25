@@ -28,6 +28,120 @@ var request = require('request');
 
 app.use(express.static('public'));
 
+//data manipulation queries for catalog page
+const getCatalog = "SELECT * FROM Catalog";
+const getBicycles = "SELECT make, model, size, price FROM Bicycles";
+const filterBicycles = `SELECT make, model, size, price FROM Bicycles
+  WHERE make=?, model=?, size=?, price=?`;
+const getGear = "SELECT name, price FROM Gear";
+const filterGear = "SELECT name, price FROM Gear WHERE name=?, price=?";
+const getClothing = "SELECT name, size, price FROM Clothing";
+const filterClothing = "SELECT name, size, price FROM clothing WHERE name=?, size=?, price=?";
+
+// data manipulation queries for services page
+const getServices = "SELECT name, price FROM Services";
+const createRequest = `INSERT INTO Repair_requests
+  (cust_id, request_date, credit_card_num, credit_card_exp, service_complete) VALUES 
+  (?, ?, ?, ?, ?)`;
+
+// data manipulation queries for customer portal
+const signInQuery = "SELECT cust_id FROM Customers WHERE cust_id=?";
+const createCustomer = `INSERT INTO Customers (fname, lname, address, city, zip, phone) VALUES 
+  (?, ?, ?, ?, ?, ?)`; 
+const getCustomer = "SELECT * FROM Customers WHERE cust_id = ?";
+const updateCustomer = `UPDATE Customers
+  SET fname=?, lname=?, address=?, city=?, zip=?, phone=?
+  WHERE cust_id = ?`;
+const getOrderHistory = 
+  `SELECT Orders.order_date, Orders.order_complete, SUM(Order_items.qty), SUM(Order_items.price_paid) 
+  FROM Customers
+  INNER JOIN Orders ON Orders.cust_id=Customers.cust_id
+  INNER JOIN Order_items ON Order_items.cust_id=Customers.cust_id AND Order_items.order_num=Orders.order_num
+  WHERE Orders.cust_id=?
+  GROUP BY Orders.order_date`;
+const getRepairRequests = 
+  `SELECT Repair_requests.request_date, Repair_requests.service_complete, COUNT(Repair_request_items.repair_id), SUM(Repair_request_items.price_paid)
+  FROM Customers
+  INNER JOIN Repair_requests ON Repair_requests.cust_id=Customers.cust_id
+  INNER JOIN Repair_request_items ON Repair_request_items.repair_id=Repair_requests.repair_id and Repair_request_items.cust_id=Customers.cust_id
+  WHERE Repair_requests.cust_id=?
+  GROUP BY Repair_requests.request_date`;
+const getRecentOrders = 
+  `SELECT Orders.order_num, Orders.order_date, Orders.order_complete FROM Customers
+  INNER JOIN Orders ON Orders.cust_id=Customers.cust_id
+  WHERE Orders.cust_id=?
+  ORDER BY DESC
+  LIMIT 3`;
+const getRecentRepairs = 
+  `SELECT Repair_requests.repair_id, Repair_requests.request_date, Repair_requests.service_complete FROM Customers
+  INNER JOIN Repair_requests ON Repair_requests.cust_id = Customers.cust_id
+  WHERE Customers.cust_id=?
+  ORDER BY DESC
+  LIMIT 3`;
+const getOrderDetails = 
+  `SELECT Order_items.price_paid, Order_items.shipping_date, Order_items.qty, Order_items.catalog_id
+  FROM Order_items
+  WHERE Order_items.order_num = ?`;
+const getRepairDetails = 
+  `SELECT Repair_request_items.complete, Repair_request_items.price_paid, Services.name
+  FROM Repair_request_items
+  INNER JOIN Services ON Services.service_id=Repair_request_items.service_id
+  WHERE Repair_request_items.repair_id = ?`;
+const updateOrder = 
+  `UPDATE Orders
+  SET credit_card_num = ?, credit_card_exp = ?
+  WHERE order_num = ?`;
+const deleteOrder = "DELETE FROM Orders WHERE order_num = ?";
+const updateRepairRequest = 
+  `UPDATE Repair_requests
+  set credit_card_num = ?, credit_card_exp =?, request_date=?
+  WHERE repair_id = ?`;
+const deleteRepairRequest = "DELETE FROM Repair_requests WHERE repair_id = ?";
+
+// QUERIES FOR ADMIN PAGE
+const searchCustomer = 
+  `SELECT cust_id, fname, lname, address, city, zip, phone
+  FROM Customers WHERE
+  Customers.fname = ? AND Customers.lname = ? and Customers.phone = ?`;
+const insertBike = 
+  `INSERT INTO Bicycles
+  (make, model, size, color, type, price, qty)
+  VALUES (?, ?, ?, ?, ?,?, ?)`;
+const insertClothing =
+  `INSERT INTO Clothing (name, size, gender, price, qty)
+  VALUES (?, ?, ?, ?, ?)`;
+const insertGear = 
+  `INSERT INTO Gear (name, price, qty)
+  VALUES (?, ?, ?)`;
+const insertService =
+  `INSERT INTO Services (name, expected_turnaround, price)
+  VALUES (?, ?, ?)`;
+const updateService = 
+  `UPDATE Order_items
+  SET order_num = ?, catalog_id = ?, shipping_date = ?,
+  WHERE Order_items.order_num = ?`;
+const updateRepairRequest =
+  `UPDATE Repair_request_items
+  SET repair_id = ?, service_id = ?,
+  WHERE Repair_request_items.repair_id = ? OR Repair_request_items.service_id = ?`;
+const updateBicycle = 
+  `UPDATE Bicycles
+  SET make = ?, model = ?, size = ?, color = ?, type = ?,
+  color = ?, price = ?, qty = ?,
+  WHERE Bicycles.catalog_id = ?`;
+const updateClothing = 
+  `UPDATE Clothing
+  SET name = ?, size = ?, gender = ?, price = ?, qty = ?,
+  WHERE Clothing.catalog_id = ?`;
+const updateGear = 
+  `UPDATE Gear
+  SET name = ?, price = ?, qty = ?,
+  WHERE Gear.catalog_id = ?`;
+const updateService = 
+  `UPDATE Services
+  SET name = ?, expected_turnaround = ?, price = ?,
+  WHERE Services.service_id = ?`;
+
 app.get('/',function(req,res){
     var context = {}
     res.render('home',context)

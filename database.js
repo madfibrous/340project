@@ -1,5 +1,6 @@
 var express = require('express');
 var mysql = require('./dbcon.js');
+var bodyParser = require('body-parser');
 var app = express();
 app.set('port',1334);
 
@@ -7,6 +8,7 @@ var CORS = require('cors');
 app.use(CORS());
 
 var handlebars = require('express-handlebars').create({
+    //helper functions for express-handlebars
     helpers: {
         if_eq: function(a, b, options) {
             if (a ==b) {return options.fn(this);}
@@ -116,11 +118,11 @@ const insertGear =
 const insertService =
   `INSERT INTO Services (name, expected_turnaround, price)
   VALUES (?, ?, ?)`;
-const updateService = 
+const updateOrderItems = 
   `UPDATE Order_items
   SET order_num = ?, catalog_id = ?, shipping_date = ?,
   WHERE Order_items.order_num = ?`;
-const updateRepairRequest =
+const updateRepairRequestItems =
   `UPDATE Repair_request_items
   SET repair_id = ?, service_id = ?,
   WHERE Repair_request_items.repair_id = ? OR Repair_request_items.service_id = ?`;

@@ -316,12 +316,14 @@ app.post('/admin',function(req,res){
     var inserts = [req.body.make, req.body.model, req.body.size, req.body.color, req.body.bikeType, req.body.color, req.body.price, req.body.qty];
     sql = mysql.pool.query(sql, inserts,function(error, results,fields){
         if(error){
+            console.log(JSON.stringify(error));
             res.write(JSON.stringify(error));
             res.end();
         }else{
             res.redirect('/admin');
         }
     });
+    return
 })
 
 app.post('/customer',function(req,res){

@@ -14,7 +14,7 @@
 </nav>
 
 <h4>Customer Search</h4>
-<form action="POST" id="customerSearch">
+<form method="GET" id="customerSearch" action="/admin">
     <label for="fname">First Name:</label>
     <input type="text" name="fname" id="fname">
     <label for="lname">Last Name:</label>
@@ -31,7 +31,7 @@
 </form><br>
 
 <h4>Add New Bike</h4>
-<form action="POST" id="bikeInsert" action="/admin">
+<form method="POST" id="bikeInsert" action="/admin">
     <label for="bikeMake">Make:</label>
     <input type="text" name="make" id="bikeMake">
     <label for="bikeModel">Model:</label>
@@ -53,7 +53,7 @@
 </form><br>
 
 <h4>Add New Clothing:</h4>
-<form action="POST" id="clothingInsert">
+<form method="POST" id="clothingInsert" action="/admin">
     <label for="clothingName">Name:</label>
     <input type="text" name="name" id="clothingName">
     <label for="clothingSize">Size:</label>
@@ -78,7 +78,7 @@
 </form><br>
 
 <h4>Add New Gear:</h4>
-<form action="POST" id="gearInsert">
+<form method="POST" id="gearInsert" action="/admin">
     <label for="gearName">Name:</label>
     <input type="text" name="name" id="gearName">
     <label for="gearPrice">Price:</label>
@@ -89,7 +89,7 @@
 </form><br>
 
 <h4>Update Order Item:</h4>
-<form action="POST" id="updateOrderItem">
+<form method="POST" id="updateOrderItem" action="/admin">
     <label for="order_num">Order Num:</label>
     <input type="text" name="order_num" id="order_num">
     <label for="catalog_id">Catalog_id:</label>
@@ -100,7 +100,7 @@
 </form><br>
 
 <h4>Update Repair Request Item:</h4>
-<form action="POST" id="updateOrderItem">
+<form method="POST" id="updateOrderItem" action="/admin">
     <label for="repair_id">Repair ID:</label>
     <input type="text" name="repair_id" id="repair_id">
     <label for="service_id">Service ID:</label>
@@ -109,7 +109,7 @@
 </form><br>
 
 <h4>Update Bike</h4>
-<form action="POST" id="updateBike">
+<form method="POST" id="updateBike" action="/admin">
     <label for="updateBikeId">Update by Catalog Num:</label>
     <input type="text" name="catalog_id" id="updateBikeId"><button>Search</button><br> 
     <label for="updateBikeMake">Make:</label>
@@ -135,7 +135,7 @@
 </form><br>
 
 <h4>Update Clothing:</h4>
-<form action="POST" id="updateClothing">
+<form method="POST" id="updateClothing" action="/admin">
     <label for="updateClothingId">Update by Catalog Num:</label>
     <input type="text" name="catalog_id" id="updateClothingId"><button>Search</button><br>
     <label for="updateClothingName">Name:</label>
@@ -162,7 +162,7 @@
 </form><br>
 
 <h4>Update Gear:</h4>
-<form action="POST" id="updateGear">
+<form method="POST" id="updateGear" action="/admin">
     <label for="updateGearId">Update by Catalog Num:</label>
     <input type="text" name="catalog_id" id="updateGearId"><button>Search</button><br>
     <label for="updateGearName">Name:</label>

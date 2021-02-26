@@ -311,6 +311,19 @@ app.get('/customer',function(req,res){
   res.render('customer',context)
 })
 
+app.post('/admin',function(req,res){
+    var sql = "INSERT INTO Bicycles (make, model, size, color, type, price, qty) VALUES (?,?,?,?,?,?,?)";
+    var inserts = [req.body.make, req.body.model, req.body.size, req.body.color, req.body.bikeType, req.body.color, req.body.price, req.body.qty];
+    sql = mysql.pool.query(sql, inserts,function(error, results,fields){
+        if(error){
+            res.write(JSON.stringify(error));
+            res.end();
+        }else{
+            res.redirect('/admin');
+        }
+    });
+})
+
 app.post('/customer',function(req,res){
   var context = {};
   //TODO: if body has createAccount, create new account in database for customer

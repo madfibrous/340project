@@ -391,6 +391,8 @@ app.post('/serviceRequest',function(req,res,next) {
   // services is [{id:service_id,price:price_paid}]
   var {cust_id, request_date, credit_card_num, credit_card_exp, services} = req.body
   // insert into Repair_requests
+  var services_count = services.length
+  var current_count = 1
   mysql.pool.query(createRequest,[cust_id, request_date, credit_card_num, credit_card_exp],function(err,results) {
     if (!err) {
       // insert Repair_request_items
@@ -404,11 +406,16 @@ app.post('/serviceRequest',function(req,res,next) {
           }
           else {
             console.log('added rpeair_request_item repair_id:', repair_id,' service_id:',service.id)
+            if (current_count >= services_count) {
+              res.send(res.statusCode)
+            }
+            else {
+              current_count++
+            }
           }
           })
         }
       }
-      // TODO: create promise chain so that can send status update after all items are added to db
     else {
       console.log(err)
       next(err)

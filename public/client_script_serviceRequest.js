@@ -87,11 +87,13 @@ function createServiceRequest(){
         services.push(service)
         row = row.nextElementSibling
     }
+    //TODO: confirm that there are no duplicate service_IDs chosen
     console.log(services)
     payload.services = services
     xhr.addEventListener('load',function(){
         if(xhr.status >= 200 && xhr.status <400) {
             console.log('success')
+            //TODO: create a confirmation page
         }
         else {
             console.log("Error in network status: " + xhr.statusText)
@@ -100,3 +102,4 @@ function createServiceRequest(){
     console.log(payload)
     xhr.send(JSON.stringify(payload))
 }
+

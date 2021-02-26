@@ -171,14 +171,30 @@ app.get('/bicycles', function(req,res){
             res.render('catalogBicycles',context);
         }
     };
-    mysql.pool.query(sql, handleRenderingOfBicycles);
+
+    if (req.body['searchBicycles']){
+      if (req.body['make']){
+          sql = "SELECT make, model, size, price FROM BICYCLES WHERE Bicycles.make = ?";
+      }
+      if (req.body['size']){
+      }
+      if (req.body['color']){
+      }
+      if (req.body['type']){
+      }
+    }
+
+    else{
+        mysql.pool.query(sql, handleRenderingOfBicycles);
+    }
 })
 
 app.get('/bikeItem', function(req,res){
     var context = {};
-    var bike = [
-      {make: "Schwinn", model: "Flyer 29", size: "L", color: "Blue", 
-          type: "Road", price: 850.00, itemType: "B"}]
+    var sql = "SELECT catalog_id, make, model, size, type, price, color, qty FROM BICYCLES WHERE "
+    mysql.pool.query(sql,function(error,results,fields){
+
+    });
     context.bike = bike;
     res.render('bikeItem', context)
 });
@@ -276,27 +292,39 @@ app.get('/gearItem', function(req,res){
 });
 
 app.get('/catalog',function(req,res){
-  var context = {}
-  //sample data
-  var bikeCatalog = [
-      {make: "Schwinn", model: "Flyer 29", size: "L", color: "Blue",
-          type: "Road", price: 850.00, itemType: "B"},
-      {make: "Kona", model: "Honzo 29", size: "L", color: "Red", 
-          type: "Mountain", price: 1350.00, itemType: "B"}]
-  var clothingCatalog = [
-    {name:"Capilene T-shirt",price:20, size: "L", gender: "M", itemType: "C"},
-    {name:"Biking shorts",price:100, size: "L", gender: "M", itemType: "C"},
-    {name:"Wool socks",price:30, size: "L", gender: "U", itemType: "C"},
-  ]
-  var gearCatalog = [
-    {name:"Headlight",price:40.00, itemType: "G"},
-    {name:"Helmet",price:50.00, itemType: "G"}
-  ]
-  context.bikeCatalog = bikeCatalog;
-  context.clothingCatalog = clothingCatalog;
-  context.gearCatalog = gearCatalog;
-  res.render('catalog',context)
+    var context = {};
+    var callbackCount = 0;
+    
+    function handleRenderingOfBicycles(error,results,fields){
+        console.log(results);
+        context.bikeCatalog=results;
+        complete();
+    };
 
+    function handleRenderingOfClothing(error,results,fields){
+        console.log(results);
+        context.clothingCatalog=results;
+        complete();
+    };
+
+    function handleRenderingOfGear(error,results,fields){
+        console.log(results);
+        context.gearCatalog=results;
+        complete();
+    };
+
+    function complete(){
+        callbackCount++;
+        if (callbackCount >= 3){
+            res.render('catalog',context);
+        }
+    };
+    var sql = "SELECT make, model, size, price FROM Bicycles";
+    mysql.pool.query(sql, handleRenderingOfBicycles);
+    var sql = "SELECT name, gender, size, price FROM Clothing";
+    mysql.pool.query(sql, handleRenderingOfClothing);
+    var sql = "SELECT name, price FROM Gear";
+    mysql.pool.query(sql, handleRenderingOfGear);
 })
 
 app.get('/orders',function(req,res){
@@ -386,7 +414,7 @@ app.post('/admin',function(req,res){
     }
     if (req.body['addBike']){
         var sql = "INSERT INTO Bicycles (make, model, size, color, type, price, qty) VALUES (?,?,?,?,?,?,?)";
-        var inserts = [req.body.make, req.body.model, req.body.size, req.body.color, req.body.bikeType, req.body.color, req.body.price, req.body.qty];
+        var inserts = [req.body.make, req.body.model, req.body.size, req.body.color, req.body.type, req.body.price, req.body.qty];
         sql = mysql.pool.query(sql, inserts,function(error, results,fields){
             if(error){
                 console.log(JSON.stringify(error));

@@ -14,13 +14,16 @@
   </div>
 </nav>
 
+<br>
+{{#if message}}<h4>{{message}}</h4>{{/if}}
+<br>
+
 <h3>Sign In</h3>
 <form action="/customer" method="POST">
     <label for="cust_id">Customer ID:</label>
     <input type="text" name='cust_id' id="cust_id">
     <input type="submit" name="Sign in" value="Sign in">
 </form>
-{{#if invalid}}<div>{{invalid}}</div>{{/if}}
 
 <br>
 

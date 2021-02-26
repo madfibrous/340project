@@ -27,7 +27,6 @@ app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 
 var request = require('request');
-const { response } = require('express');
 
 app.use(express.static('public'));
 
@@ -156,11 +155,10 @@ app.get('/',function(req,res){
 
 app.get('/bicycles', function(req,res){
     var context = {};
-    var sql = "SELECT make, model, size, price FROM Bicycles";
     var callbackCount = 0;
     
     function handleRenderingOfBicycles(error,results,fields){
-        console.log(results);
+        console.log("results are: ", results);
         context.bikes=results;
         complete();
     };
@@ -172,19 +170,13 @@ app.get('/bicycles', function(req,res){
         }
     };
 
-    if (req.body['searchBicycles']){
-      if (req.body['make']){
-          sql = "SELECT make, model, size, price FROM BICYCLES WHERE Bicycles.make = ?";
-      }
-      if (req.body['size']){
-      }
-      if (req.body['color']){
-      }
-      if (req.body['type']){
-      }
+    if (req.query.make){
+        var sql = "SELECT make, model, size, price, type FROM Bicycles WHERE make = ?";
+        var inserts = [req.query.make];
+        mysql.pool.query(sql, inserts, handleRenderingOfBicycles);
     }
-
     else{
+        var sql = "SELECT make, model, size, price FROM Bicycles";
         mysql.pool.query(sql, handleRenderingOfBicycles);
     }
 })
@@ -268,7 +260,7 @@ app.get('/gear', function(req,res){
     var context = {};
     var sql = "SELECT name, price FROM Gear";
     var callbackCount = 0;
-    
+     
     function handleRenderingOfGear(error,results,fields){
         console.log(results);
         context.gear=results;
@@ -281,7 +273,31 @@ app.get('/gear', function(req,res){
             res.render('catalogGear',context);
         }
     };
+    mysql.pool.query(sql,handleRenderingOfGear);
+})
+
+app.post('/gear', function(req,res){
+    var context = {};
+    var sql = "SELECT name, price FROM GEAR WHERE name = ?";
+    function handleRenderingOfGear(error,results,fields){
+        console.log(results);
+        context.gear=results;
+        complete();
+    };
+
+    function complete(){
+        callbackCount++;
+        if (callbackCount >= 1){
+            res.render('catalogGear',context);
+        }
+    };
+
     mysql.pool.query(sql, handleRenderingOfGear);
+    if(req.body["searchGear"]){
+        console.log(req.body.searchGear);
+    }
+    res.render('catalogGear', context);
+
 })
 
 app.get('/gearItem', function(req,res){
@@ -353,11 +369,6 @@ app.get('/services',function(req,res){
 })
 
 app.get('/serviceRequest',function(req,res){
-  if (!session.cust_id) {
-    var context = {}
-    res.render('signIn',context)
-    return
-  }
   mysql.pool.query(getServices, function(err,results){
     var context = {}
     var services = []
@@ -458,7 +469,6 @@ app.post('/admin',function(req,res){
 })
 
 app.post('/customer',function(req,res){
-  console.log(req.body)
   var context = {};
   //TODO: if body has createAccount, create new account in database for customer
   if (req.body['Create Account']){
@@ -467,20 +477,11 @@ app.post('/customer',function(req,res){
     res.render('customer', context)
     return
   }
-
+  //TODO: if body has signin, check if account ID exists and then assign that as session.cust_id
   if (req.body['Sign in']){
-    mysql.pool.query(getCustomer,[req.body.cust_id],function(err,results) {
-      if (!err && results.length > 0) {
-        session.cust_id = req.body.cust_id
-        var context = {};
-        res.render('customer', context)
-      }
-      else {
-        var context = {};
-        context.invalid = 'That ID does not exist in the system'
-        res.render('signIn',context)
-      }
-    })
+    //mysql query to check if cust ID is correct
+    var context = {};
+    res.render('customer', context)
     return
   }
   //TODO: create edit profile page

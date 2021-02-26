@@ -75,7 +75,7 @@ CREATE TABLE Catalog (
 
 DROP TABLE IF EXISTS Bicycles;
 CREATE TABLE Bicycles (
-    catalog_id INT (11) UNIQUE not NULL PRIMARY KEY,
+    catalog_id INT (11) auto_increment UNIQUE not NULL PRIMARY KEY,
     make varchar (255) not NULL,
     model varchar (255) not NULL,
     size VARCHAR (3),
@@ -89,7 +89,7 @@ CREATE TABLE Bicycles (
 /*changed name datatype to not be UNIQUE*/
 DROP TABLE IF EXISTS Clothing;
 CREATE TABLE Clothing (
-    catalog_id INT (11) UNIQUE not NULL PRIMARY KEY,
+    catalog_id INT (11) auto_increment UNIQUE not NULL PRIMARY KEY,
     name VARCHAR (255) not NULL,
     size VARCHAR (3),
     gender CHAR (1), /* M,F,U*/
@@ -101,7 +101,7 @@ CREATE TABLE Clothing (
 
 DROP TABLE IF EXISTS Gear;
 CREATE TABLE Gear (
-    catalog_id INT (11) UNIQUE not NULL PRIMARY KEY,
+    catalog_id INT (11) auto_increment UNIQUE not NULL PRIMARY KEY,
     name VARCHAR (255) UNIQUE not NULL,
     price DECIMAL (7,2) not NULL,
     qty smallint(11)

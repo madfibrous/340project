@@ -407,7 +407,7 @@ app.post('/serviceRequest',function(req,res,next) {
           else {
             console.log('added rpeair_request_item repair_id:', repair_id,' service_id:',service.id)
             if (current_count >= services_count) {
-              res.send(res.statusCode)
+              res.send('successfully created repair request')
             }
             else {
               current_count++
@@ -478,6 +478,28 @@ app.post('/admin',function(req,res){
                 res.redirect('/admin');
             }
         });
+    }
+
+    if (req.body['addService']) {
+      var {serviceName, expected_turnaround, servicePrice} = req.body;
+      mysql.pool.query(insertService,[serviceName,expected_turnaround,servicePrice], function(err, results){
+        if (!err) {
+          if (results.insertId) {
+            var context = {}
+            context.message = 'Successfully Inserted';
+            res.render('admin',context)
+          }
+          else {
+            context.message = 'Not Successfully Inserted';
+            res.render('admin',context)
+          }
+        }
+        else {
+          console.log(err)
+          next(err)          
+        }
+      })
+      return
     }
 
     return

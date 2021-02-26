@@ -100,6 +100,7 @@ function createServiceRequest(){
         }
     })
     console.log(payload)
+    xhr.responseType = 'document';
     xhr.send(JSON.stringify(payload))
 }
 

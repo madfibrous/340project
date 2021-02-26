@@ -87,6 +87,17 @@
     <input type="submit" name="addGear" value="Add">
 </form><br>
 
+<h4>Add New Service:</h4>
+<form method="POST" id="serviceInsert" action="/admin">
+    <label for="serviceName">Name:</label>
+    <input type="text" name="serviceName" id="serviceName">
+    <label for="expected_turnaround">Expected_turnaround:</label>
+    <input type="text" name="expected_turnaround" id="expected_turnaround">
+    <label for="servicePrice">Price:</label>
+    <input type="text" name="servicePrice" id="servicePrice">
+    <input type="submit" name="addService" value="Add">
+</form><br>
+
 <h4>Update Order Item:</h4>
 <form method="POST" id="updateOrderItem" action="/admin">
     <label for="order_num">Order Num:</label>

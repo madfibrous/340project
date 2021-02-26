@@ -245,13 +245,23 @@ app.get('/clothingItem', function(req,res){
 });
 
 app.get('/gear', function(req,res){
-  var context = {};
-  var gear = [
-    {name:"Headlight",price:40.00, itemType: "G"},
-    {name:"Helmet",price:50.00, itemType: "G"}
-  ]
-  context.gear = gear;
-  res.render('catalogGear',context)
+    var context = {};
+    var sql = "SELECT name, price FROM Gear";
+    var callbackCount = 0;
+    
+    function handleRenderingOfGear(error,results,fields){
+        console.log(results);
+        context.gear=results;
+        complete();
+    };
+
+    function complete(){
+        callbackCount++;
+        if (callbackCount >= 1){
+            res.render('catalogGear',context);
+        }
+    };
+    mysql.pool.query(sql, handleRenderingOfGear);
 })
 
 app.get('/gearItem', function(req,res){

@@ -4,7 +4,6 @@
   <h1>Beave's Bikes</h1>
 </div>
 
-
 <nav id="navbar">
   <div>
     <a href="/">Home</a>
@@ -18,30 +17,33 @@
 <br>
 <h2>Service Requests</h2>
 <form action="/serviceRequest" method="POST" id="serviceRequestForm">
-    <label for="customerID">Customer ID:</label>
-    <input type="text" name="customerID" id="customerID" disabled value={{customerId}}>
+    <label for="cust_id">Customer ID:</label>
+    <input type="text" name="cust_id" id="cust_id" disabled value={{cust_id}}>
     <br>
-    <!-- TODO: link signin button to customer portal page -->
-    <label for="requestDate">Request Date:</label>
-    <input type="date" name='requestDate' id="requestDate"><br>
-    <label for="serviceName">Requested Service:</label>
-    <select name="serviceName" id="serviceName">
+    <label for="request_date">Request Date:</label>
+    <input type="date" name='request_date' id="request_date"><br>
+    <label for="service">Requested Service:</label>
+    <select name="service" id="service">
         <option value="">--Please select a service--</option>
         {{#each services}}
-            <option value={{this.id}}>{{this.name}}: ${{this.price}}</option>
+            <option value='{{this.id}}' serviceName='{{this.name}}' price='{{this.price}}'>{{this.name}}: ${{this.price}}</option>
         {{/each}}
     </select><button id="chooseService">Select</button>
     <br><br>
     <h5>Chosen Services:</h5>
-    <!-- example data -->
-    <ul>
-      <li>Tire Replacement <button>remove</button> </li>
-      <li>Bottom Bracket Bearings <button>remove</button></li>
-    </ul>
-    <!-- TODO: create a hidden list, span, or table to track chosen service IDs -->
+    <table id="servicesTable">
+      <thead>
+        <th>Service</th>
+        <th>Cost</th>
+        <th hidden='hidden'>service_id</th>
+        <th></th>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
     <br>
     <div>
-      Total Cost: $<span id="totalCost">80</span>
+      Total Cost: $<span id="totalCost">0</span>
     </div>
     <br>
     <br>
@@ -50,7 +52,7 @@
     <input type="text" name="credit_card_num" id="credit_card_num" minlength="16" maxlength="16"><br>
     <label for="credit_card_exp">Credit Card Expiration Date:</label>
     <input type="date" name="credit_card_exp" id="credit_card_exp"><br>
-    <input type="submit" value="Submit Request">
+    <input name='submit' type="submit" value="Submit Request">
 </form>
 
 <script type="text/javascript" src="client_script_serviceRequest.js"></script>

@@ -42,7 +42,7 @@ const getClothing = "SELECT name, size, price, gender FROM Clothing WHERE name =
 const filterClothing = "SELECT name, size, gender, price FROM Clothing WHERE name=?, size=?, gender=?, price=?";
 
 // data manipulation queries for services page
-const getServices = "SELECT name, price FROM Services";
+const getServices = "SELECT service_id, name, price FROM Services";
 const createRequest = `INSERT INTO Repair_requests
   (cust_id, request_date, credit_card_num, credit_card_exp, service_complete) VALUES 
   (?, ?, ?, ?, False)`;
@@ -369,11 +369,18 @@ app.get('/services',function(req,res){
 })
 
 app.get('/serviceRequest',function(req,res){
+  if (!session.cust_id) {
+    var context = {}
+    context.message = "You must sign in to create a service request";
+    res.render('signIn',context)
+    return
+  }
   mysql.pool.query(getServices, function(err,results){
     var context = {}
+    context.cust_id = session.cust_id
     var services = []
     for (let row of results||false) {
-      services.push({"id":row.id,"name":row.name,"price":row.price});
+      services.push({"id":row.service_id,"name":row.name,"price":row.price});
     }
     context.services = services
     res.render('serviceRequest',context)
@@ -401,6 +408,7 @@ app.post('/serviceRequest',function(req,res,next) {
           })
         }
       }
+      // TODO: create promise chain so that can send status update after all items are added to db
     else {
       console.log(err)
       next(err)
@@ -479,9 +487,18 @@ app.post('/customer',function(req,res){
   }
   //TODO: if body has signin, check if account ID exists and then assign that as session.cust_id
   if (req.body['Sign in']){
-    //mysql query to check if cust ID is correct
-    var context = {};
-    res.render('customer', context)
+    mysql.pool.query(getCustomer,[req.body.cust_id],function(err,results) {
+      if (!err && results.length > 0) {
+        session.cust_id = req.body.cust_id
+        var context = {};
+        res.render('customer', context)
+      }
+      else {
+        var context = {};
+        context.message = 'That ID does not exist in the system'
+        res.render('signIn',context)
+      }
+    })
     return
   }
   //TODO: create edit profile page

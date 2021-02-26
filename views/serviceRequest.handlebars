@@ -20,9 +20,6 @@
 <form action="/serviceRequest" method="POST" id="serviceRequestForm">
     <label for="customerID">Customer ID:</label>
     <input type="text" name="customerID" id="customerID" disabled value={{customerId}}>
-    {{#unless cust_id}}
-    <button id='signInButton'>Sign In or Create Account</button>
-    {{/unless}}
     <br>
     <!-- TODO: link signin button to customer portal page -->
     <label for="requestDate">Request Date:</label>

@@ -27,6 +27,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 
 var request = require('request');
+const { response } = require('express');
 
 app.use(express.static('public'));
 
@@ -344,6 +345,11 @@ app.get('/services',function(req,res){
 })
 
 app.get('/serviceRequest',function(req,res){
+  if (!session.cust_id) {
+    var context = {}
+    res.render('signIn',context)
+    return
+  }
   mysql.pool.query(getServices, function(err,results){
     var context = {}
     var services = []
@@ -444,6 +450,7 @@ app.post('/admin',function(req,res){
 })
 
 app.post('/customer',function(req,res){
+  console.log(req.body)
   var context = {};
   //TODO: if body has createAccount, create new account in database for customer
   if (req.body['Create Account']){
@@ -452,11 +459,20 @@ app.post('/customer',function(req,res){
     res.render('customer', context)
     return
   }
-  //TODO: if body has signin, check if account ID exists and then assign that as session.cust_id
+
   if (req.body['Sign in']){
-    //mysql query to check if cust ID is correct
-    var context = {};
-    res.render('customer', context)
+    mysql.pool.query(getCustomer,[req.body.cust_id],function(err,results) {
+      if (!err && results.length > 0) {
+        session.cust_id = req.body.cust_id
+        var context = {};
+        res.render('customer', context)
+      }
+      else {
+        var context = {};
+        context.invalid = 'That ID does not exist in the system'
+        res.render('signIn',context)
+      }
+    })
     return
   }
   //TODO: create edit profile page

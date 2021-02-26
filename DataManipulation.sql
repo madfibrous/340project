@@ -43,6 +43,10 @@ SELECT name, price FROM Services;
 INSERT INTO Repair_requests (cust_id, request_date, credit_card_num, credit_card_exp, service_complete) VALUES 
     (:cust_idInput, :request_dateInput, :credit_card_numInput, :credit_card_expInput, :service_completeInput);
 
+INSERT INTO Repair_request_items
+  (repair_id, service_id, complete, price_paid)
+  VALUES (?, ?, False, ?);
+
 
 /* -------------- QUERIES FOR CUSTOMER PORTAL ---------------- */
 

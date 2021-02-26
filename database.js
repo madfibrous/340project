@@ -364,16 +364,26 @@ app.get('/serviceRequest',function(req,res){
 })
 
 app.post('/serviceRequest',function(req,res,next) {
-  // services is [{service_id:id,price_paid:price}]
+  // services is [{id:service_id,price:price_paid}]
   var {cust_id, request_date, credit_card_num, credit_card_exp, services} = req.body
   // insert into Repair_requests
   mysql.pool.query(createRequest,[cust_id, request_date, credit_card_num, credit_card_exp],function(err,results) {
     if (!err) {
       // insert Repair_request_items
+      console.log('added repair_request id:',results.insertId)
+      repair_id = results.insertId;
       for (let service of services) {
-        mysql.pool.query(createReq)
+        mysql.pool.query(createRequestItem,[repair_id, service.id, service.price], function(err,results) {
+          if (err) {
+            console.log(err)
+            next(err)
+          }
+          else {
+            console.log('added rpeair_request_item repair_id:', repair_id,' service_id:',service.id)
+          }
+          })
+        }
       }
-    }
     else {
       console.log(err)
       next(err)

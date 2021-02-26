@@ -260,7 +260,7 @@ app.get('/gear', function(req,res){
     var context = {};
     var sql = "SELECT name, price FROM Gear";
     var callbackCount = 0;
-    
+     
     function handleRenderingOfGear(error,results,fields){
         console.log(results);
         context.gear=results;
@@ -273,7 +273,31 @@ app.get('/gear', function(req,res){
             res.render('catalogGear',context);
         }
     };
+    mysql.pool.query(sql,handleRenderingOfGear);
+})
+
+app.post('/gear', function(req,res){
+    var context = {};
+    var sql = "SELECT name, price FROM GEAR WHERE name = ?";
+    function handleRenderingOfGear(error,results,fields){
+        console.log(results);
+        context.gear=results;
+        complete();
+    };
+
+    function complete(){
+        callbackCount++;
+        if (callbackCount >= 1){
+            res.render('catalogGear',context);
+        }
+    };
+
     mysql.pool.query(sql, handleRenderingOfGear);
+    if(req.body["searchGear"]){
+        console.log(req.body.searchGear);
+    }
+    res.render('catalogGear', context);
+
 })
 
 app.get('/gearItem', function(req,res){

@@ -155,7 +155,6 @@ app.get('/',function(req,res){
 
 app.get('/bicycles', function(req,res){
     var context = {};
-    var sql = "SELECT make, model, size, price FROM Bicycles";
     var callbackCount = 0;
     
     function handleRenderingOfBicycles(error,results,fields){
@@ -172,18 +171,11 @@ app.get('/bicycles', function(req,res){
     };
 
     if (req.body['searchBicycles']){
-      if (req.body['make']){
-          sql = "SELECT make, model, size, price FROM BICYCLES WHERE Bicycles.make = ?";
-      }
-      if (req.body['size']){
-      }
-      if (req.body['color']){
-      }
-      if (req.body['type']){
-      }
+        var params = req.query.make;
+        console.log("req.query.make is", params);
     }
-
     else{
+        var sql = "SELECT make, model, size, price FROM Bicycles";
         mysql.pool.query(sql, handleRenderingOfBicycles);
     }
 })

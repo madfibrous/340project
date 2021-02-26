@@ -40,15 +40,15 @@
     <input type="text" name="size" id="bikeSize">
     <label for="bikeType">Type:</label>
     <select name="type" id="bikeType">
-        <option value="road">Road Bike</option>
-        <option value="mountain">Mountain Bike</option>
+        <option value="R">Road Bike</option>
+        <option value="M">Mountain Bike</option>
     </select><br>
     <label for="bikeColor">Color:</label>
     <input type="text" name="color" id="bikeColor">
     <label for="bikePrice">Price:</label>
-    <input type="text" name="price" id="bikePrice">
+    <input type="number" name="price" step="0.01" id="bikePrice">
     <label for="bikeQty">Quantity:</label>
-    <input type="text" name="qty" id="bikeQty">
+    <input type="number" name="qty" id="bikeQty">
     <input type="submit" name="addBike" value="Add">
 </form><br>
 
@@ -58,17 +58,16 @@
     <input type="text" name="clothingName" id="clothingName">
     <label for="clothingSize">Size:</label>
     <select name="clothingSize" id="clothingSize">
-        <option value="xs">Extra small</option>
-        <option value="s">Small</option>
-        <option value="m">Medium</option>
-        <option value="l">Large</option>
-        <option value="xl">Extra Large</option>
+        <option value="S">Small</option>
+        <option value="M">Medium</option>
+        <option value="L">Large</option>
+        <option value="XL">Extra Large</option>
     </select>
     <label for="clothingGender">Gender:</label>
     <select name="clothingGender" id="clothingGender">
-        <option value="male">Male</option>
-        <option value="female">Female</option>
-        <option value="unisex">Unisex</option>
+        <option value="M">Male</option>
+        <option value="F">Female</option>
+        <option value="U">Unisex</option>
     </select><br>
     <label for="clothingPrice">Price:</label>
     <input type="text" name="clothingPrice" id="clothingPrice">

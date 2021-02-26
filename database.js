@@ -398,7 +398,7 @@ app.post('/admin',function(req,res){
     }
     if (req.body['addBike']){
         var sql = "INSERT INTO Bicycles (make, model, size, color, type, price, qty) VALUES (?,?,?,?,?,?,?)";
-        var inserts = [req.body.make, req.body.model, req.body.size, req.body.color, req.body.bikeType, req.body.color, req.body.price, req.body.qty];
+        var inserts = [req.body.make, req.body.model, req.body.size, req.body.color, req.body.type, req.body.price, req.body.qty];
         sql = mysql.pool.query(sql, inserts,function(error, results,fields){
             if(error){
                 console.log(JSON.stringify(error));

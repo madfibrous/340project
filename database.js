@@ -31,14 +31,15 @@ var request = require('request');
 app.use(express.static('public'));
 
 //data manipulation queries for catalog page
+//getCatalog probably not needed to display catalog because
+//gear, clothing, bicycles have different attributes.
 const getCatalog = "SELECT * FROM Catalog";
-const getBicycles = "SELECT make, model, size, price FROM Bicycles";
-const filterBicycles = `SELECT make, model, size, price FROM Bicycles
-  WHERE make=?, model=?, size=?, price=?`;
-const getGear = "SELECT name, price FROM Gear";
+const getBicycles = "SELECT make, model, size, price FROM Bicycles WHERE Bicycles.catalog_id=?";
+const filterBicycles = "SELECT make, model, size, price FROM Bicycles WHERE make=?, model=?, size=?, price=?";
+const getGear = "SELECT name, price FROM Gear WHERE Gear.catalog_id=?";
 const filterGear = "SELECT name, price FROM Gear WHERE name=?, price=?";
-const getClothing = "SELECT name, size, price FROM Clothing";
-const filterClothing = "SELECT name, size, price FROM clothing WHERE name=?, size=?, price=?";
+const getClothing = "SELECT name, size, price, gender FROM Clothing WHERE name =?, size=?, gender=?, price=?";
+const filterClothing = "SELECT name, size, gender, price FROM Clothing WHERE name=?, size=?, gender=?, price=?";
 
 // data manipulation queries for services page
 const getServices = "SELECT name, price FROM Services";
@@ -50,7 +51,7 @@ const createRequest = `INSERT INTO Repair_requests
 const signInQuery = "SELECT cust_id FROM Customers WHERE cust_id=?";
 const createCustomer = `INSERT INTO Customers (fname, lname, address, city, zip, phone) VALUES 
   (?, ?, ?, ?, ?, ?)`; 
-const getCustomer = "SELECT * FROM Customers WHERE cust_id = ?";
+const getCustomer = "SELECT * FROM Customers WHERE cust_id =?";
 const updateCustomer = `UPDATE Customers
   SET fname=?, lname=?, address=?, city=?, zip=?, phone=?
   WHERE cust_id = ?`;
@@ -151,13 +152,22 @@ app.get('/',function(req,res){
 
 app.get('/bicycles', function(req,res){
     var context = {};
-    var bikes = [
-      {make: "Schwinn", model: "Flyer 29", size: "L", color: "Blue", 
-          type: "Road", price: 850.00, itemType: "B"},
-      {make: "Kona", model: "Honzo 29", size: "L", color: "Red", 
-          type: "Mountain", price: 1350.00, itemType: "B"}]
-    context.bikes = bikes;
-    res.render('catalogBicycles',context)
+    var sql = "SELECT make, model, size, price FROM Bicycles";
+    var callbackCount = 0;
+    
+    function handleRenderingOfBicycles(error,results,fields){
+        console.log(results);
+        context.bikes=results;
+        complete();
+    };
+
+    function complete(){
+        callbackCount++;
+        if (callbackCount >= 1){
+            res.render('catalogBicycles',context);
+        }
+    };
+    mysql.pool.query(sql, handleRenderingOfBicycles);
 })
 
 app.get('/bikeItem', function(req,res){
@@ -208,14 +218,23 @@ app.get('/orders', function(req,res){
 });
 
 app.get('/clothing', function(req,res){
-  var context = {};
-  var clothing = [
-    {name:"Capilene T-shirt",price:20, size: "L", gender: "M", itemType: "C"},
-    {name:"Biking shorts",price:100, size: "L", gender: "M", itemType: "C"},
-    {name:"Wool socks",price:30, size: "L", gender: "U", itemType: "C"}
-  ]
-  context.clothing = clothing;
-  res.render('catalogClothing',context)
+    var context = {};
+    var sql = "SELECT name, size, gender, price FROM Clothing";
+    var callbackCount = 0;
+    
+    function handleRenderingOfClothing(error,results,fields){
+        console.log(results);
+        context.clothing=results;
+        complete();
+    };
+
+    function complete(){
+        callbackCount++;
+        if (callbackCount >= 1){
+            res.render('catalogClothing',context);
+        }
+    };
+    mysql.pool.query(sql, handleRenderingOfClothing);
 })
 
 app.get('/clothingItem', function(req,res){
@@ -312,17 +331,53 @@ app.get('/customer',function(req,res){
 })
 
 app.post('/admin',function(req,res){
-    var sql = "INSERT INTO Bicycles (make, model, size, color, type, price, qty) VALUES (?,?,?,?,?,?,?)";
-    var inserts = [req.body.make, req.body.model, req.body.size, req.body.color, req.body.bikeType, req.body.color, req.body.price, req.body.qty];
-    sql = mysql.pool.query(sql, inserts,function(error, results,fields){
-        if(error){
-            console.log(JSON.stringify(error));
-            res.write(JSON.stringify(error));
-            res.end();
-        }else{
-            res.redirect('/admin');
-        }
-    });
+    if (req.body['searchCustomer']){
+        //var sql = SELECT statement for customer
+        //var inserts
+        //sql
+    }
+    if (req.body['addBike']){
+        var sql = "INSERT INTO Bicycles (make, model, size, color, type, price, qty) VALUES (?,?,?,?,?,?,?)";
+        var inserts = [req.body.make, req.body.model, req.body.size, req.body.color, req.body.bikeType, req.body.color, req.body.price, req.body.qty];
+        sql = mysql.pool.query(sql, inserts,function(error, results,fields){
+            if(error){
+                console.log(JSON.stringify(error));
+                res.write(JSON.stringify(error));
+                res.end();
+            }else{
+                res.redirect('/admin');
+            }
+        });
+    }
+
+    if (req.body['addClothing']){
+        var sql = "INSERT INTO Clothing (name, size, gender, price, qty) VALUES (?,?,?,?,?)";
+        var inserts = [req.body.clothingName, req.body.clothingSize, req.body.clothingGender, req.body.clothingPrice, req.body.clothingQty];
+        sql = mysql.pool.query(sql, inserts,function(error, results,fields){
+            if(error){
+                console.log(JSON.stringify(error));
+                res.write(JSON.stringify(error));
+                res.end();
+            }else{
+                res.redirect('/admin');
+            }
+        });
+    }
+
+    if (req.body['addGear']){
+        var sql = "INSERT INTO Gear (name, price, qty) VALUES (?,?,?)";
+        var inserts = [req.body.gearName, req.body.gearPrice, req.body.gearQty];
+        sql = mysql.pool.query(sql, inserts,function(error, results,fields){
+            if(error){
+                console.log(JSON.stringify(error));
+                res.write(JSON.stringify(error));
+                res.end();
+            }else{
+                res.redirect('/admin');
+            }
+        });
+    }
+
     return
 })
 

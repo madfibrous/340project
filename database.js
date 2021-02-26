@@ -45,7 +45,10 @@ const filterClothing = "SELECT name, size, gender, price FROM Clothing WHERE nam
 const getServices = "SELECT name, price FROM Services";
 const createRequest = `INSERT INTO Repair_requests
   (cust_id, request_date, credit_card_num, credit_card_exp, service_complete) VALUES 
-  (?, ?, ?, ?, ?)`;
+  (?, ?, ?, ?, False)`;
+const createRequestItem = `INSERT INTO Repair_request_items
+(repair_id, service_id, complete, price_paid)
+VALUES (?, ?, False, ?)`;
 
 // data manipulation queries for customer portal
 const signInQuery = "SELECT cust_id FROM Customers WHERE cust_id=?";
@@ -305,29 +308,47 @@ app.get('/admin',function(req,res){
 })
 
 app.get('/services',function(req,res){
-  mysql.pool.query('SELECT * FROM bsg_planets', function(err,results){
-    var fakeResults = [{name:"Tire Replacement", price:"30"}, {name:"Bottom Bracket Bearings", price:"50"}, {name:"Headset Bearings", price:"50"}]
-    //TODO: replace fake results with real results
+  mysql.pool.query(getServices, function(err,results){
     var context = {}
     var services = []
-    for (let row of fakeResults||false) {
+    for (let row of results||false) {
       services.push({"name":row.name,"price":row.price});
     }
     context.services = services
+    if (session.cust_id) {
+      context.cust_id = session.cust_id
+    }
     res.render('services',context)
   })
 })
 
 app.get('/serviceRequest',function(req,res){
-  mysql.pool.query('SELECT * FROM bsg_planets', function(err,results){
-    var fakeResults = [{id:1,name:"Tire Replacement", price:"30"}, {id:2,name:"Bottom Bracket Bearings", price:"50"}, {id:3,name:"Headset Bearings", price:"50"}]
+  mysql.pool.query(getServices, function(err,results){
     var context = {}
     var services = []
-    for (let row of fakeResults||false) {
+    for (let row of results||false) {
       services.push({"id":row.id,"name":row.name,"price":row.price});
     }
     context.services = services
     res.render('serviceRequest',context)
+  })
+})
+
+app.post('/serviceRequest',function(req,res,next) {
+  // services is [{service_id:id,price_paid:price}]
+  var {cust_id, request_date, credit_card_num, credit_card_exp, services} = req.body
+  // insert into Repair_requests
+  mysql.pool.query(createRequest,[cust_id, request_date, credit_card_num, credit_card_exp],function(err,results) {
+    if (!err) {
+      // insert Repair_request_items
+      for (let service of services) {
+        mysql.pool.query(createReq)
+      }
+    }
+    else {
+      console.log(err)
+      next(err)
+    }
   })
 })
 

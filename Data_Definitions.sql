@@ -60,7 +60,7 @@ CREATE TABLE Repair_request_items (
 
 /* removed ? from complete */
 
-DROP TABLE IF EXISTS Serivces;
+DROP TABLE IF EXISTS Services;
 CREATE TABLE Services (
     service_id INT(11) auto_increment unique not NULL PRIMARY KEY,
     name VARCHAR(255) UNIQUE not NULL,

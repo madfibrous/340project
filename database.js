@@ -396,22 +396,21 @@ app.post('/serviceRequest',function(req,res,next) {
   mysql.pool.query(createRequest,[cust_id, request_date, credit_card_num, credit_card_exp],function(err,results) {
     if (!err) {
       // insert Repair_request_items
-      console.log('added repair_request id:',results.insertId)
       repair_id = results.insertId;
       for (let service of services) {
         mysql.pool.query(createRequestItem,[repair_id, service.id, service.price], function(err,results) {
-          if (err) {
-            console.log(err)
-            next(err)
-          }
-          else {
-            console.log('added rpeair_request_item repair_id:', repair_id,' service_id:',service.id)
+          if (!err) {
             if (current_count >= services_count) {
-              res.send('successfully created repair request')
+              res.setHeader('Content-Type','application/json')
+              res.send({'repair_id':repair_id})
             }
             else {
               current_count++
             }
+          }
+          else {
+            console.log(err)
+            next(err)
           }
           })
         }
@@ -429,7 +428,51 @@ app.get('/customer',function(req,res){
     res.render('signIn',context)
     return
   }
-  res.render('customer',context)
+  mysql.pool.query(getCustomer,session.cust_id,function(err,results) {
+    if (err) {
+      console.log(err);
+      next(err)
+    }
+    else {
+      context.fname = results[0].fname;
+      context.lname = results[0].lname;
+      res.render('customer',context)
+    }
+  })
+})
+
+app.post('/customer',function(req,res, next){
+  var context = {}
+  if (req.body['Create Account']) {
+    var {fname, lname, address, city, zip, phone} = req.body;
+    mysql.pool.query(createCustomer, [fname,lname,address,city,zip,phone], function(err,results){
+      if (err) {
+        console.log(err);
+        next(err)
+      }
+      else {
+        session.cust_id = results.insertId
+        context.fname = fname;
+        context.lname = lname;
+        res.render('customer',context)
+      }
+    })
+  }
+  if (req.body['Sign in']) {
+    let cust_id = req.body.cust_id;
+    mysql.pool.query(getCustomer,cust_id,function(err,results) {
+      if (err) {
+        console.log(err);
+        next(err)
+      }
+      else {
+        session.cust_id = cust_id;
+        context.fname = results[0].fname;
+        context.lname = results[0].lname;
+        res.render('customer',context)
+      }
+    })
+  }
 })
 
 app.post('/admin',function(req,res){

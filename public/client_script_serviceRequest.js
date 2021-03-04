@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded',function(){
         }
         if (event.target.name == 'submit') {
             // send post request to /serviceRequest with relevant info
+            disableInputs()
             console.log('submitting request')
             createServiceRequest()
         }
@@ -57,13 +58,11 @@ document.addEventListener('DOMContentLoaded',function(){
 })
 
 function createServiceRequest(){
-    console.log('preparing request')
     var xhr = new XMLHttpRequest();
     var urlString = '/serviceRequest';
     xhr.open('POST',urlString,true);
     xhr.setRequestHeader('Content-Type','application/json');
     var payload = {};
-    console.log('preparing payload')
     payload['cust_id'] = document.getElementById('cust_id').value
     payload['request_date'] = document.getElementById('request_date').value
     payload['credit_card_num'] = document.getElementById('credit_card_num').value
@@ -74,33 +73,70 @@ function createServiceRequest(){
         return
     }
     var service
-    console.log('getting services')
     while (row !== null) {
         current = row.firstElementChild.nextElementSibling
         service = {}
-        console.log(row)
-        console.log(current.textContent)
         service['price'] = current.textContent
         current = current.nextElementSibling
-        console.log(current.textContent)
         service['id'] = current.textContent
         services.push(service)
         row = row.nextElementSibling
     }
-    //TODO: confirm that there are no duplicate service_IDs chosen
-    console.log(services)
+    //TODO: confirm that there are no duplicate service_IDs or blanks chosen
     payload.services = services
     xhr.addEventListener('load',function(){
+        console.log(xhr)
         if(xhr.status >= 200 && xhr.status <400) {
-            console.log('success')
-            //TODO: create a confirmation page
+            var response = JSON.parse(xhr.response)
+            console.log('received repair_id')
+            console.log(response)
+            document.body.append(createConfirmationBox(response.repair_id))
+            let goHomeBtn = document.getElementById('goHomeBtn');
+            goHomeBtn.addEventListener('click',function(){
+                window.location.href = '/';
+            })
         }
         else {
             console.log("Error in network status: " + xhr.statusText)
         }
     })
-    console.log(payload)
-    xhr.responseType = 'document';
-    xhr.send(JSON.stringify(payload))
+    xhr.send(JSON.stringify(payload));
 }
 
+function disableInputs() {
+    // disable inputs
+    var inputs = document.getElementsByTagName('input')
+    var buttons = document.getElementsByTagName('button')
+    var dropdowns = document.getElementsByTagName('select')
+    for (let obj of inputs) {
+        obj.disabled = 'disabled'
+    };
+    for (let obj of buttons) {
+        obj.disabled = 'disabled'
+    };
+    for (let obj of dropdowns) {
+        obj.disabled = 'disabled'
+    }
+}
+
+function createConfirmationBox(repair_id) {
+    // create a confirmation dialogue box
+    let confirmationBox = document.createElement('div');
+    confirmationBox.style.border = '1rem solid';
+    confirmationBox.innerText = 'Successfully made your repair request!\nYour request ID is : ' + repair_id+"\nPlease keep this ID for your records.";
+    confirmationBox.style.position = 'fixed';
+    confirmationBox.style.top = "20%";
+    confirmationBox.style.height = "60%";
+    confirmationBox.style.left = "20%";
+    confirmationBox.style.width = "60%";
+    confirmationBox.appendChild(createGoHomeButton())
+    return confirmationBox
+}
+
+function createGoHomeButton() {
+    // return a button that routes to '/Home'
+    let btn = document.createElement('button');
+    btn.textContent = "Go Home";
+    btn.id = 'goHomeBtn';
+    return btn
+}

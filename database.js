@@ -59,10 +59,10 @@ const updateCustomer = `UPDATE Customers
   SET fname=?, lname=?, address=?, city=?, zip=?, phone=?
   WHERE cust_id = ?`;
 const getOrderHistory = 
-  `SELECT Orders.order_date, Orders.order_complete, SUM(Order_items.qty), SUM(Order_items.price_paid) 
+  `SELECT Orders.order_num, Orders.order_date, Orders.order_complete, SUM(Order_items.qty) AS item_quantity, SUM(Order_items.price_paid) AS total_price
   FROM Customers
   INNER JOIN Orders ON Orders.cust_id=Customers.cust_id
-  INNER JOIN Order_items ON Order_items.cust_id=Customers.cust_id AND Order_items.order_num=Orders.order_num
+  INNER JOIN Order_items ON Order_items.order_num=Orders.order_num
   WHERE Orders.cust_id=?
   GROUP BY Orders.order_date`;
 const getRepairRequests = 
@@ -85,7 +85,7 @@ const getRecentRepairs =
   ORDER BY DESC
   LIMIT 3`;
 const getOrderDetails = 
-  `SELECT Order_items.price_paid, Order_items.shipping_date, Order_items.qty, Order_items.catalog_id
+  `SELECT Order_items.catalog_id, Order_items.price_paid, Order_items.shipped, Order_items.shipping_date, Order_items.qty 
   FROM Order_items
   WHERE Order_items.order_num = ?`;
 const getRepairDetails = 
@@ -346,6 +346,33 @@ app.get('/catalog',function(req,res){
 app.get('/orders',function(req,res){
   var context= {};
   res.render('orders',context)
+})
+
+app.get('/order_history',function(req,res,next){
+  var context= {};
+  mysql.pool.query(getOrderHistory,session.cust_id,function(err,results){
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      context.orders = results
+      res.render('order_history',context)
+    }
+    
+  })
+})
+
+app.post('/order_history', function(req,res,next) {
+  mysql.pool.query(getOrderDetails,req.body.order_num, function(err,results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      res.send(results)
+    }
+  })
 })
 
 app.get('/admin',function(req,res){

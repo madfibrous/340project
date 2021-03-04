@@ -29,19 +29,20 @@
 
 <h5>Customer History</h5>
 <!-- TODO: create AJAX to populate tables based on buttons pressed -->
-<button>Order History</button>
+<button onclick="location.href='/order_history'">Order History</button>
 <button>Service History</button>
 
 <br><br>
-
+<!--
+  TODO: implement recent orders
 <h5>Recent Orders</h5>
 <table>
   <thead>
     <td>Order Number</td>
     <td>Order Date</td>
-    <td>Order Priority</td>
     <td>Order Status</td>
-    <td>Pickup or Ship?</td>
+    <td>Number of Items</td>
+    <td>Total Paid</td>
     <td>Order Details</td>
     <td>Update Billing</td>
     <td>Cancel Order</td>
@@ -101,5 +102,5 @@
     </tr>
   </tbody>
 </table>
-
+-->
 <script type='text/javascript' src='client_script_customer.js'></script>

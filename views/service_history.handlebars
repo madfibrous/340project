@@ -1,0 +1,50 @@
+<link rel="stylesheet" href="client_style_serviceHistory.css">
+
+<div id="header">
+  <h1>Beave's Bikes</h1>
+</div>
+
+
+<nav id="navbar">
+  <div>
+    <a href="/">Home</a>
+    <a href="/catalog">Catalog</a>
+    <a href="/services">Services</a>
+    <a href="/customer"><b>Customer Portal</b></a>
+    <a href="/cart">Cart</a>
+    <a href="/admin">Admin</a>
+  </div>
+</nav>
+
+<br>
+<h2>Service History</h2>
+
+
+<table id="serviceHistoryTable">
+  <thead>
+    <td>Repair ID</td>
+    <td>Request Date</td>
+    <td>Status</td>
+    <td>Number of Repairs</td>
+    <td>Total Cost</td>
+    <td>Service Details</td>
+    <td>Update Billing</td>
+    <td>Cancel Repair</td>
+  </thead>
+  <tbody>
+      {{#each services}}
+      <tr>
+          <td>{{this.repair_id}}</td>
+          <td>{{this.request_date}}</td>
+          <td>{{#if this.service_complete}}Complete{{else}}In Process{{/if}}</td>
+          <td>{{this.total_services}}</td>
+          <td>${{this.total_price}}</td>
+          <td><button>Details</button></td>
+          <td><button>Update</button></td>
+          <td><button>Cancel</button></td>
+      </tr>
+      {{/each}}
+  </tbody>
+</table>
+
+<script type="text/javascript" src="client_script_serviceHistory.js"></script>

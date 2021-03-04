@@ -64,14 +64,14 @@ const getOrderHistory =
   INNER JOIN Orders ON Orders.cust_id=Customers.cust_id
   INNER JOIN Order_items ON Order_items.order_num=Orders.order_num
   WHERE Orders.cust_id=?
-  GROUP BY Orders.order_date`;
+  GROUP BY Orders.order_num`;
 const getRepairRequests = 
-  `SELECT Repair_requests.request_date, Repair_requests.service_complete, COUNT(Repair_request_items.repair_id), SUM(Repair_request_items.price_paid)
+  `SELECT Repair_requests.repair_id, Repair_requests.request_date, Repair_requests.service_complete, COUNT(Repair_request_items.repair_id) AS total_services, SUM(Repair_request_items.price_paid) AS total_paid
   FROM Customers
   INNER JOIN Repair_requests ON Repair_requests.cust_id=Customers.cust_id
-  INNER JOIN Repair_request_items ON Repair_request_items.repair_id=Repair_requests.repair_id and Repair_request_items.cust_id=Customers.cust_id
-  WHERE Repair_requests.cust_id=?
-  GROUP BY Repair_requests.request_date`;
+  INNER JOIN Repair_request_items ON Repair_request_items.repair_id=Repair_requests.repair_id
+  WHERE Repair_requests.cust_id = ?
+  GROUP BY Repair_requests.repair_id`;
 const getRecentOrders = 
   `SELECT Orders.order_num, Orders.order_date, Orders.order_complete FROM Customers
   INNER JOIN Orders ON Orders.cust_id=Customers.cust_id
@@ -85,11 +85,12 @@ const getRecentRepairs =
   ORDER BY DESC
   LIMIT 3`;
 const getOrderDetails = 
+  //TODO: join catalog tables so can use name of product rather than catalog_id
   `SELECT Order_items.catalog_id, Order_items.price_paid, Order_items.shipped, Order_items.shipping_date, Order_items.qty 
   FROM Order_items
   WHERE Order_items.order_num = ?`;
 const getRepairDetails = 
-  `SELECT Repair_request_items.complete, Repair_request_items.price_paid, Services.name
+  `SELECT Services.name, Repair_request_items.complete, Repair_request_items.price_paid 
   FROM Repair_request_items
   INNER JOIN Services ON Services.service_id=Repair_request_items.service_id
   WHERE Repair_request_items.repair_id = ?`;
@@ -445,6 +446,33 @@ app.post('/serviceRequest',function(req,res,next) {
     else {
       console.log(err)
       next(err)
+    }
+  })
+})
+
+app.get('/service_history',function(req,res,next){
+  var context= {};
+  mysql.pool.query(getRepairRequests,session.cust_id,function(err,results){
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      context.services = results
+      res.render('service_history',context)
+    }
+    
+  })
+})
+
+app.post('/service_history', function(req,res,next) {
+  mysql.pool.query(getRepairDetails,req.body.repair_id, function(err,results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      res.send(results)
     }
   })
 })

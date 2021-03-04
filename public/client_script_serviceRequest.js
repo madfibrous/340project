@@ -85,11 +85,8 @@ function createServiceRequest(){
     //TODO: confirm that there are no duplicate service_IDs or blanks chosen
     payload.services = services
     xhr.addEventListener('load',function(){
-        console.log(xhr)
         if(xhr.status >= 200 && xhr.status <400) {
             var response = JSON.parse(xhr.response)
-            console.log('received repair_id')
-            console.log(response)
             document.body.append(createConfirmationBox(response.repair_id))
             let goHomeBtn = document.getElementById('goHomeBtn');
             goHomeBtn.addEventListener('click',function(){

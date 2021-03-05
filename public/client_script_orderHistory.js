@@ -6,14 +6,44 @@ document.addEventListener('DOMContentLoaded',function(){
             let order_num = event.target.parentNode.parentNode.firstElementChild.textContent
             getOrderItems(order_num).then(function(rows){
                 // construct a table in a fixed div in the middle of the screen showing the contents of the order
-                document.body.appendChild(createDiv(rows));
+                document.body.appendChild(createOrdersDiv(rows));
                 document.getElementById('closeButton').addEventListener('click',closeDetails);
+            })    
+        }
+        if (event.target.textContent == 'Cancel') {
+            // AJAX delete request
+            let order_num = event.target.parentNode.parentNode.firstElementChild.textContent;
+            cancelOrder(order_num).then(function(text){
+                // create confirmation box with the message from the server
+                document.body.appendChild(createDeleteDiv(text));
+                document.getElementById('closeButton').addEventListener('click',closeDetails);
+                // remove order that was just cancelled
+                if (text !== 'Items are shipped already, cannot cancel order!') {
+                    let removeTr = event.target.parentNode.parentNode;
+                    removeTr.parentNode.removeChild(removeTr)
+                }
             })
-            
-            
         }
     })
 })
+
+function cancelOrder(order_num) {
+    return new Promise(function(resolve,reject) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('DELETE','/order_history',true);
+        xhr.setRequestHeader('Content-Type','application/json');
+        xhr.addEventListener('load', function() {
+            if(xhr.status >= 200 && xhr.status <400) {
+                resolve(xhr.responseText)
+            }
+            else {
+                reject(console.log("Error in network status: " + xhr.statusText))
+            }
+        })
+        let payload = JSON.stringify({'order_num':order_num})
+        xhr.send(payload)
+    })
+}
 
 function getOrderItems(order_num) {
     return new Promise(function(resolve,reject) {
@@ -32,7 +62,22 @@ function getOrderItems(order_num) {
     })
 }
 
-function createDiv(rows) {
+function createDeleteDiv(text) {
+    let div = document.createElement('div');
+    div.id = 'detailsDiv'
+    div.style.border = '1rem solid';
+    div.style.position = 'fixed';
+    div.style.top = "20%";
+    div.style.height = "60%";
+    div.style.left = "20%";
+    div.style.width = "60%";
+    div.style.background = 'white';
+    div.textContent = text;
+    div.appendChild(createCloseButton());
+    return div
+}
+
+function createOrdersDiv(rows) {
     let div = document.createElement('div');
     div.id = 'detailsDiv'
     div.style.border = '1rem solid';

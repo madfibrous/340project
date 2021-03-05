@@ -94,10 +94,20 @@ const getRepairDetails =
   FROM Repair_request_items
   INNER JOIN Services ON Services.service_id=Repair_request_items.service_id
   WHERE Repair_request_items.repair_id = ?`;
+const numberRepaired =
+// find the number of items already shipped
+  `SELECT COUNT(Repair_request_items.service_id) AS number_repaired
+  FROM Repair_request_items
+  WHERE Repair_request_items.service_id = ? AND Repair_request_items.complete = 1`;
 const updateOrder = 
   `UPDATE Orders
   SET credit_card_num = ?, credit_card_exp = ?
   WHERE order_num = ?`;
+const numberShipped =
+// find the number of items already shipped
+  `SELECT COUNT(Order_items.catalog_id) AS number_shipped
+  FROM Order_items
+  WHERE Order_items.order_num = ? AND Order_items.shipped = 1`;
 const deleteOrder = "DELETE FROM Orders WHERE order_num = ?";
 const updateRepairRequest = 
   `UPDATE Repair_requests
@@ -376,6 +386,52 @@ app.post('/order_history', function(req,res,next) {
   })
 })
 
+app.delete('/order_history', function(req,res,next) {
+  // first check that items haven't already been shipped, if so then it can't be cancelled
+  numberShippedQuery(req).then(function(obj) {
+    if (obj.numberShipped > 0) {
+      res.setHeader('Content-Type','text/plain')
+      res.send('Items are shipped already, cannot cancel order!')
+      return
+    }
+    else {
+      // send a delete query
+      deleteOrderQuery(obj.order_num, res, next)
+    }
+  }).catch(function(err){
+    next(err)
+  })
+})
+
+function deleteOrderQuery(order_num, res, next) {
+  // deletes an order. sends a message if it was successful.
+  mysql.pool.query(deleteOrder,order_num,function(err,results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      res.setHeader('Content-Type','text/plain');
+      res.send('Order num:'+order_num+' has successfully been cancelled!')
+    }
+  })
+}
+
+function numberShippedQuery(req) {
+  // creates promise with returns number of items already shipped
+  return new Promise(function(resolve, reject) {
+    mysql.pool.query(numberShipped,[req.body.order_num], function(err,results) {
+      if (err) {
+        console.log(err)
+        reject(err)
+      }
+      else {
+        resolve({'numberShipped':results[0].number_shipped,'order_num':req.body.order_num})
+      }
+    })
+  })
+}
+
 app.get('/admin',function(req,res){
   var context= {};
   res.render('admin',context)
@@ -477,6 +533,52 @@ app.post('/service_history', function(req,res,next) {
   })
 })
 
+app.delete('/service_history', function(req,res,next) {
+  // first check that repairs haven't started already, if so then it can't be cancelled
+  numberRepairsCompleteQuery(req).then(function(obj) {
+    if (obj.numberShipped > 0) {
+      res.setHeader('Content-Type','text/plain')
+      res.send('Items are shipped already, cannot cancel order!')
+      return
+    }
+    else {
+      // send a delete query
+      deleteOrderQuery(obj.order_num, res, next)
+    }
+  }).catch(function(err){
+    next(err)
+  })
+})
+
+function deleteOrderQuery(order_num, res, next) {
+  // deletes an order. sends a message if it was successful.
+  mysql.pool.query(deleteOrder,order_num,function(err,results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      res.setHeader('Content-Type','text/plain');
+      res.send('Order num:'+order_num+' has successfully been cancelled!')
+    }
+  })
+}
+
+function numberRepairsCompleteQuery(req) {
+  // creates promise with returns number of repairs already finished
+  return new Promise(function(resolve, reject) {
+    mysql.pool.query(numberShipped,[req.body.order_num], function(err,results) {
+      if (err) {
+        console.log(err)
+        reject(err)
+      }
+      else {
+        resolve({'numberShipped':results[0].number_shipped,'order_num':req.body.order_num})
+      }
+    })
+  })
+}
+
 app.get('/customer',function(req,res){
   var context = {}
   if (!session.cust_id) {
@@ -525,8 +627,48 @@ app.post('/customer',function(req,res, next){
         context.fname = results[0].fname;
         context.lname = results[0].lname;
         res.render('customer',context)
+        return
       }
     })
+  }
+  if (req.body['Edit Profile']) {
+    // get info about the customer
+    mysql.pool.query(getCustomer,session.cust_id,function(err,results) {
+      if (err) {
+        console.log(err);
+        next(err)
+      }
+      else {
+        // add cust info to context
+        let custInfo = results[0]
+        for (const prop in custInfo) {
+          context[prop] = custInfo[prop]
+        }
+        // render 'editInfo' view with context
+        res.render('editProfile',context)
+        return
+      }
+    })
+  }
+  if (req.body['Update Profile']) {
+    // deconstruct body
+    let {fname, lname, address, city, zip, phone} = req.body
+    // send mysql query for update
+    mysql.pool.query(updateCustomer, [fname, lname, address, city, zip, phone, session.cust_id], function(err,results) {
+      // let customer know update was successful or not
+      if (err) {
+        console.log(err)
+        next(err)
+      }
+      else {
+        context.message = "Your customer profile was updated successfully!";
+        context.fname = fname;
+        context.lname = lname;
+        res.render('customer',context)
+        return
+      }
+    })
+    
   }
 })
 

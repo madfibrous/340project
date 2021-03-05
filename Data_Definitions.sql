@@ -119,13 +119,17 @@ ALTER TABLE Repair_requests
 ;
 
 ALTER TABLE Order_items
-    ADD FOREIGN KEY (order_num) REFERENCES Orders(order_num),
+    ADD FOREIGN KEY (order_num) REFERENCES Orders(order_num)
+        ON DELETE CASCADE,
     ADD FOREIGN KEY (catalog_id) REFERENCES Catalog(catalog_id)
+        ON DELETE CASCADE
 ;
 
 ALTER TABLE Repair_request_items
-    ADD FOREIGN KEY (repair_id) REFERENCES Repair_requests(repair_id),
+    ADD FOREIGN KEY (repair_id) REFERENCES Repair_requests(repair_id)
+        ON DELETE CASCADE,
     ADD FOREIGN KEY (service_id) REFERENCES Services(service_id)
+        ON DELETE CASCADE
 ;
 
 ALTER TABLE Bicycles

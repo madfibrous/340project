@@ -19,6 +19,8 @@
 <br>
 <h2>Customer Portal</h2>
 
+{{#if message}} <h6>{{message}}</h6> {{/if}}
+
 <h5>Hi {{fname}} {{lname}}!</h5>
 
 <form action="/customer" method="POST">

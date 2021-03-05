@@ -4,17 +4,46 @@ document.addEventListener('DOMContentLoaded',function(){
         if (event.target.textContent == 'Details') {
             // AJAX call to get the order items
             let repair_id = event.target.parentNode.parentNode.firstElementChild.textContent
-            console.log(repair_id)
             getRepairItems(repair_id).then(function(rows){
                 // construct a table in a fixed div in the middle of the screen showing the contents of the order
-                document.body.appendChild(createDiv(rows));
+                document.body.appendChild(createRepairsDiv(rows));
                 document.getElementById('closeButton').addEventListener('click',closeDetails);
+            })            
+        }
+        if (event.target.textContent == 'Cancel') {
+            // AJAX delete request
+            let repair_id = event.target.parentNode.parentNode.firstElementChild.textContent;
+            cancelRepair(repair_id).then(function(text){
+                // create confirmation box with the message from the server
+                document.body.appendChild(createDeleteDiv(text));
+                document.getElementById('closeButton').addEventListener('click',closeDetails);
+                // remove order that was just cancelled
+                if (text !== 'Repairs have been started, cannot cancel repair!') {
+                    let removeTr = event.target.parentNode.parentNode;
+                    removeTr.parentNode.removeChild(removeTr)
+                }
             })
-            
-            
         }
     })
 })
+
+function cancelRepair(repair_id) {
+    return new Promise(function(resolve,reject) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('DELETE','/service_history',true);
+        xhr.setRequestHeader('Content-Type','application/json');
+        xhr.addEventListener('load', function() {
+            if(xhr.status >= 200 && xhr.status <400) {
+                resolve(xhr.responseText)
+            }
+            else {
+                reject(console.log("Error in network status: " + xhr.statusText))
+            }
+        })
+        let payload = JSON.stringify({'repair_id':repair_id})
+        xhr.send(payload)
+    })
+}
 
 function getRepairItems(repair_id) {
     return new Promise(function(resolve,reject) {
@@ -33,7 +62,22 @@ function getRepairItems(repair_id) {
     })
 }
 
-function createDiv(rows) {
+function createDeleteDiv(text) {
+    let div = document.createElement('div');
+    div.id = 'detailsDiv'
+    div.style.border = '1rem solid';
+    div.style.position = 'fixed';
+    div.style.top = "20%";
+    div.style.height = "60%";
+    div.style.left = "20%";
+    div.style.width = "60%";
+    div.style.background = 'white';
+    div.textContent = text;
+    div.appendChild(createCloseButton());
+    return div
+}
+
+function createRepairsDiv(rows) {
     let div = document.createElement('div');
     div.id = 'detailsDiv'
     div.style.border = '1rem solid';

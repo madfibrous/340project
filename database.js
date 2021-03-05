@@ -536,30 +536,30 @@ app.post('/service_history', function(req,res,next) {
 app.delete('/service_history', function(req,res,next) {
   // first check that repairs haven't started already, if so then it can't be cancelled
   numberRepairsCompleteQuery(req).then(function(obj) {
-    if (obj.numberShipped > 0) {
+    if (obj.numberRepaired > 0) {
       res.setHeader('Content-Type','text/plain')
-      res.send('Items are shipped already, cannot cancel order!')
+      res.send('Repairs have been started, cannot cancel repair!')
       return
     }
     else {
       // send a delete query
-      deleteOrderQuery(obj.order_num, res, next)
+      deleteRepairQuery(obj.repair_id, res, next)
     }
   }).catch(function(err){
     next(err)
   })
 })
 
-function deleteOrderQuery(order_num, res, next) {
+function deleteRepairQuery(repair_id, res, next) {
   // deletes an order. sends a message if it was successful.
-  mysql.pool.query(deleteOrder,order_num,function(err,results) {
+  mysql.pool.query(deleteRepairRequest,[repair_id],function(err,results) {
     if (err) {
       console.log(err)
       next(err)
     }
     else {
       res.setHeader('Content-Type','text/plain');
-      res.send('Order num:'+order_num+' has successfully been cancelled!')
+      res.send('Repair ID:'+repair_id+' has successfully been cancelled!')
     }
   })
 }
@@ -567,13 +567,13 @@ function deleteOrderQuery(order_num, res, next) {
 function numberRepairsCompleteQuery(req) {
   // creates promise with returns number of repairs already finished
   return new Promise(function(resolve, reject) {
-    mysql.pool.query(numberShipped,[req.body.order_num], function(err,results) {
+    mysql.pool.query(numberRepaired,[req.body.repair_id], function(err,results) {
       if (err) {
         console.log(err)
         reject(err)
       }
       else {
-        resolve({'numberShipped':results[0].number_shipped,'order_num':req.body.order_num})
+        resolve({'numberRepaired':results[0].number_repaired,'repair_id':req.body.repair_id})
       }
     })
   })

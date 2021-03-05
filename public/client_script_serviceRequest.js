@@ -126,6 +126,7 @@ function createConfirmationBox(repair_id) {
     confirmationBox.style.height = "60%";
     confirmationBox.style.left = "20%";
     confirmationBox.style.width = "60%";
+    confirmationBox.style.background = 'white';
     confirmationBox.appendChild(createGoHomeButton())
     return confirmationBox
 }

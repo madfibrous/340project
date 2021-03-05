@@ -1,4 +1,6 @@
-<link rel="stylesheet" href="client_style_catalogItem.css">
+<head>
+    <link rel="stylesheet" href="client_style_catalogItem.css">
+</head>
 
 <div id="header">
   <h1>Beave's Bikes</h1>
@@ -27,9 +29,9 @@
   
   {{#if bikeCatalog}}
       {{#each bikeCatalog}}
-      <div class='col-4'>
-          <img class="brightness" id="bikeImage" src="pictures/productpage/bikeIcon.png"
-          onclick="javascript:window.location='./bikeItem';">
+      <div class='col-4' id='bikeCatalogDiv'>
+          <img id="bikeImage" onclick="loadBikeItem({{this.catalog_id}})"
+          src="pictures/productpage/bikeIcon.png">
           </br>
           <span>{{this.make}}</span>
           <span>{{this.model}}&emsp;</span>
@@ -42,11 +44,10 @@
   {{/if}}
   {{#if clothingCatalog}}
       {{#each clothingCatalog}}
-        <div class='col-4'>
-          <img id="clothingImage"
+        <div class='col-4' id='clothingCatalogDiv'>
+          <img id="clothingImage" onclick="loadClothingItem({{this.catalog_id}})"
           src="pictures/productpage/clothingIcon.png"
-          width="128" height="128"
-          onclick ="javascript:window.location='./clothingItem';">
+          width="128" height="128">
           </br>
           <span>{{this.name}}</span>
           </br>
@@ -58,11 +59,10 @@
   {{/if}}
   {{#if gearCatalog}}
       {{#each gearCatalog}}
-        <div class='col-4'>
-          <img id="gearImage"
+        <div class='col-4' id='gearCatalogDiv'>
+          <img id="gearImage" onclick="loadGearItem({{this.catalog_id}})"
           src= "pictures/productpage/gearIcon.png"
-          width="128" height="128"
-          onclick ="javascript:window.location='./gearItem';">
+          width="128" height="128">
           </br>
           <span>{{this.name}}</span>
           </br>
@@ -75,4 +75,4 @@
   </div>
 </div>
 </br>
-
+<script type="text/javascript" src="client_script_catalog.js"></script>

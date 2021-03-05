@@ -43,10 +43,9 @@
   {{#if clothing}}
       {{#each clothing}}
       <div class='col-4'>
-          <img id="clothingImage"
-          src="https://img.icons8.com/carbon-copy/2x/clothes.png"
-          width="128" height="128"
-          onclick ="javascript:window.location='./clothingItem';">
+          <img id="clothingImage" onclick="loadClothingItem({{this.catalog_id}})"
+          src="/pictures/productpage/clothingIcon.png"
+          width="128 height="128">
           </br>
           <span>{{this.name}}&emsp;</span>
           </br>
@@ -59,3 +58,4 @@
       {{/each}}
   {{/if}}
 </div>
+<script src="client_script_catalog.js"></script>

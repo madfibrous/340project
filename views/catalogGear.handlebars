@@ -35,10 +35,9 @@
   {{#if gear}}
       {{#each gear}}
       <div class='col-4'>
-          <img id="gearImage"
+          <img id="gearImage" onclick="loadGearItem({{this.catalog_id}})"
           src ="pictures/productpage/gearIcon.png"
-          width="128" height="128"
-          onclick ="javascript:window.location='./gearItem';">
+          width="128" height="128">
           </br>
           <span>{{this.name}}&emsp;</span>
           </br>
@@ -47,3 +46,4 @@
       {{/each}}
   {{/if}}
 </div>
+<script src="client_script_catalog.js"></script>

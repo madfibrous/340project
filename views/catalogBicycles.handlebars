@@ -65,8 +65,8 @@
   {{#if bikes}}
       {{#each bikes}}
       <div class='col-4'>
-          <img id="bikeImage" src="/pictures/productpage/bikeIcon.png"
-          onclick="javascript:window.location='./bikeItem';">
+          <img id="bikeImage" onclick="loadBikeItem({{this.catalog_id}})"
+          src="/pictures/productpage/bikeIcon.png">
           </br>
           <span>{{this.make}}</span>
           <span>{{this.model}}&emsp;</span>
@@ -78,3 +78,5 @@
       {{/each}}
   {{/if}}
 </div>
+
+<script src="client_script_catalog.js"></script>

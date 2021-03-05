@@ -34,11 +34,11 @@ app.use(express.static('public'));
 //getCatalog probably not needed to display catalog because
 //gear, clothing, bicycles have different attributes.
 const getCatalog = "SELECT * FROM Catalog";
-const getBicycles = "SELECT make, model, size, price FROM Bicycles WHERE Bicycles.catalog_id=?";
+const getBicycles = "SELECT catalog_id, make, model, size, price FROM Bicycles WHERE Bicycles.catalog_id=?";
 const filterBicycles = "SELECT make, model, size, price FROM Bicycles WHERE make=?, model=?, size=?, price=?";
-const getGear = "SELECT name, price FROM Gear WHERE Gear.catalog_id=?";
+const getGear = "SELECT catalog_id, name, price FROM Gear WHERE Gear.catalog_id=?";
 const filterGear = "SELECT name, price FROM Gear WHERE name=?, price=?";
-const getClothing = "SELECT name, size, price, gender FROM Clothing WHERE name =?, size=?, gender=?, price=?";
+const getClothing = "SELECT catalog_id, name, size, price, gender FROM Clothing WHERE name =?, size=?, gender=?, price=?";
 const filterClothing = "SELECT name, size, gender, price FROM Clothing WHERE name=?, size=?, gender=?, price=?";
 
 // data manipulation queries for services page
@@ -171,13 +171,14 @@ app.get('/bicycles', function(req,res){
         }
     };
 
+    /*Sort bicycles by type*/
     if (req.query.make){
-        var sql = "SELECT make, model, size, price, type FROM Bicycles WHERE make = ?";
+        var sql = "SELECT catalog_id, make, model, size, price, type FROM Bicycles WHERE make = ?";
         var inserts = [req.query.make];
         mysql.pool.query(sql, inserts, handleRenderingOfBicycles);
     }
     else{
-        var sql = "SELECT make, model, size, price FROM Bicycles";
+        var sql = "SELECT catalog_id, make, model, size, price FROM Bicycles";
         mysql.pool.query(sql, handleRenderingOfBicycles);
     }
 })
@@ -186,9 +187,8 @@ app.get('/bikeItem', function(req,res){
     var context = {};
     var sql = "SELECT catalog_id, make, model, size, type, price, color, qty FROM BICYCLES WHERE "
     mysql.pool.query(sql,function(error,results,fields){
-
+        context.bikes = results;
     });
-    context.bike = bike;
     res.render('bikeItem', context)
 });
 
@@ -232,7 +232,7 @@ app.get('/orders', function(req,res){
 
 app.get('/clothing', function(req,res){
     var context = {};
-    var sql = "SELECT name, size, gender, price FROM Clothing";
+    var sql = "SELECT catalog_id, name, size, gender, price FROM Clothing";
     var callbackCount = 0;
     
     function handleRenderingOfClothing(error,results,fields){
@@ -259,7 +259,7 @@ app.get('/clothingItem', function(req,res){
 
 app.get('/gear', function(req,res){
     var context = {};
-    var sql = "SELECT name, price FROM Gear";
+    var sql = "SELECT catalog_id, name, price FROM Gear";
     var callbackCount = 0;
      
     function handleRenderingOfGear(error,results,fields){
@@ -336,11 +336,11 @@ app.get('/catalog',function(req,res){
             res.render('catalog',context);
         }
     };
-    var sql = "SELECT make, model, size, price FROM Bicycles";
+    var sql = "SELECT catalog_id, make, model, size, price FROM Bicycles";
     mysql.pool.query(sql, handleRenderingOfBicycles);
-    var sql = "SELECT name, gender, size, price FROM Clothing";
+    var sql = "SELECT catalog_id, name, gender, size, price FROM Clothing";
     mysql.pool.query(sql, handleRenderingOfClothing);
-    var sql = "SELECT name, price FROM Gear";
+    var sql = "SELECT catalog_id, name, price FROM Gear";
     mysql.pool.query(sql, handleRenderingOfGear);
 })
 

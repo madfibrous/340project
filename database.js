@@ -153,7 +153,6 @@ app.get('/bikeItem', function(req,res){
     res.render('bikeItem', context)
 });
 
-<<<<<<< HEAD
 app.post('/admin', function(req,res) {
   var context = {};
   if (req.body['adminPassword']==='1234') {
@@ -164,7 +163,6 @@ app.post('/admin', function(req,res) {
   }
 })
 
-=======
 app.get('/cart', function(req,res){
     var context = {};
     var cart = [
@@ -395,7 +393,6 @@ function numberShippedQuery(req) {
   })
 }
 
->>>>>>> 2bad5505de3e0b3a16a11efec4c3fe7ae1dff6f2
 app.get('/admin',function(req,res){
   res.render('adminSignIn')
 })

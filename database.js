@@ -434,16 +434,6 @@ function numberShippedQuery(req) {
   })
 }
 
-app.post('/admin', function(req,res) {
-  var context = {};
-  if (req.body['adminPassword']==='1234') {
-    res.render('admin',context)
-  }
-  else {
-    res.render('adminSignIn', context)
-  }
-})
-
 app.get('/admin',function(req,res){
   res.render('adminSignIn')
 })
@@ -790,8 +780,14 @@ app.post('/admin',function(req,res){
       })
       return
     }
-
-    return
+    if (req.body['adminPassword']==='1234') {
+      res.render('admin')
+      return
+    }
+    else {
+      res.render('adminSignIn')
+      return
+    }
 })
 
 app.use(function(req,res){

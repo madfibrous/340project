@@ -66,12 +66,14 @@ const getOrderHistory =
   WHERE Orders.cust_id=?
   GROUP BY Orders.order_num`;
 const getRepairRequests = 
-  `SELECT Repair_requests.repair_id, Repair_requests.request_date, Repair_requests.service_complete, COUNT(Repair_request_items.repair_id) AS total_services, SUM(Repair_request_items.price_paid) AS total_paid
+  `SELECT Repair_requests.repair_id, DATE_FORMAT(Repair_requests.request_date,'%Y-%m-%d') AS request_date, Repair_requests.service_complete, COUNT(Repair_request_items.repair_id) AS total_services, SUM(Repair_request_items.price_paid) AS total_paid
   FROM Customers
   INNER JOIN Repair_requests ON Repair_requests.cust_id=Customers.cust_id
   INNER JOIN Repair_request_items ON Repair_request_items.repair_id=Repair_requests.repair_id
   WHERE Repair_requests.cust_id = ?
   GROUP BY Repair_requests.repair_id`;
+const getRepair = 
+  `SELECT repair_id, cust_id, DATE_FORMAT(request_date, '%Y-%m-%d') AS request_date, credit_card_num, DATE_FORMAT(credit_card_exp, '%Y-%m-%d') AS credit_card_exp FROM Repair_requests WHERE repair_id = ? and cust_id = ?`;
 const getRecentOrders = 
   `SELECT Orders.order_num, Orders.order_date, Orders.order_complete FROM Customers
   INNER JOIN Orders ON Orders.cust_id=Customers.cust_id
@@ -111,7 +113,7 @@ const numberShipped =
 const deleteOrder = "DELETE FROM Orders WHERE order_num = ?";
 const updateRepairRequest = 
   `UPDATE Repair_requests
-  set credit_card_num = ?, credit_card_exp =?, request_date=?
+  set credit_card_num = ?, credit_card_exp =?, request_date =?
   WHERE repair_id = ?`;
 const deleteRepairRequest = "DELETE FROM Repair_requests WHERE repair_id = ?";
 
@@ -506,6 +508,19 @@ app.post('/serviceRequest',function(req,res,next) {
   })
 })
 
+app.post('/getRepair', function(req,res,next) {
+  // return repair that matches provided repair_id. also make sure id matches current customer
+  mysql.pool.query(getRepair, [req.body.repair_id, session.cust_id], function(err, results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      res.send(results)
+    }
+  })
+})
+
 app.get('/service_history',function(req,res,next){
   var context= {};
   mysql.pool.query(getRepairRequests,session.cust_id,function(err,results){
@@ -531,6 +546,31 @@ app.post('/service_history', function(req,res,next) {
       res.send(results)
     }
   })
+})
+
+app.put('/service_history', function(req,res,next) {
+  //first check that the repairs haven't started already. borrow numberRepairsCompleteQuery
+  // req needs: credit_card_num, credit_card_exp, request_date, repair_id
+  var {credit_card_num, credit_card_exp, request_date, repair_id} = req.body
+  numberRepairsCompleteQuery(req).then(function(obj) {
+    if (obj.numberRepaired > 0) {
+      res.setHeader('Content-Type','text/plain')
+      res.send('Repairs have been started, cannot update anymore. You have already been charged!')
+      return
+    }
+    else {
+      //update repair request billing
+      mysql.pool.query(updateRepairRequest,[credit_card_num, credit_card_exp, request_date, repair_id], function(err, results) {
+        if (err) {
+          console.log(err)
+          next(err)
+        }
+        else {
+          res.setHeader('Content-Type','text/plain');
+          res.send('Repair ID:'+repair_id+' has successfully been updated!')
+        }
+      })
+    }})
 })
 
 app.delete('/service_history', function(req,res,next) {
@@ -565,7 +605,7 @@ function deleteRepairQuery(repair_id, res, next) {
 }
 
 function numberRepairsCompleteQuery(req) {
-  // creates promise with returns number of repairs already finished
+  // creates promise that returns number of repairs already finished
   return new Promise(function(resolve, reject) {
     mysql.pool.query(numberRepaired,[req.body.repair_id], function(err,results) {
       if (err) {
@@ -743,51 +783,6 @@ app.post('/admin',function(req,res){
     }
 
     return
-})
-
-app.post('/customer',function(req,res){
-  var context = {};
-  //TODO: if body has createAccount, create new account in database for customer
-  if (req.body['Create Account']){
-    //mySQL query to insert into customer table
-    var context = {}
-    res.render('customer', context)
-    return
-  }
-  //TODO: if body has signin, check if account ID exists and then assign that as session.cust_id
-  if (req.body['Sign in']){
-    mysql.pool.query(getCustomer,[req.body.cust_id],function(err,results) {
-      if (!err && results.length > 0) {
-        session.cust_id = req.body.cust_id
-        var context = {};
-        res.render('customer', context)
-      }
-      else {
-        var context = {};
-        context.message = 'That ID does not exist in the system'
-        res.render('signIn',context)
-      }
-    })
-    return
-  }
-  //TODO: create edit profile page
-  if (req.body['Edit Profile']) {
-    // mysql query to pull customer info
-    var context = {};
-    res.render('editProfile',context)
-    return
-  }
-  //TODO: create update profile query
-  if (req.body['Update Profile']) {
-    // mysql query to update customer profile
-    var context = {};
-    res.render('customer',context)
-    return
-  }
-  if (!session.cust_id) {
-    res.render('signIn',context)
-    return
-  }
 })
 
 app.use(function(req,res){

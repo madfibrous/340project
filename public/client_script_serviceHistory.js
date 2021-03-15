@@ -24,8 +24,128 @@ document.addEventListener('DOMContentLoaded',function(){
                 }
             })
         }
+        if (event.target.textContent == 'Update') {
+            // AJAX update request
+            let repair_id = event.target.parentNode.parentNode.firstElementChild.textContent;
+            event.target.parentNode.parentNode.id = 'updateRow';
+            // TODO: get repair details
+            getRepair(repair_id).then(createRepairUpdateDiv).then(updateRepair).then(function(text) {
+                document.body.appendChild(createDeleteDiv(text));
+                document.getElementById('closeButton').addEventListener('click',closeDetails);
+            })
+        }
     })
 })
+
+function getRepair(repair_id) {
+    // return object with repair details from a repair_id
+    return new Promise(function(resolve, reject) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST','/getRepair', true);
+            xhr.setRequestHeader('Content-Type','application/json');
+            xhr.addEventListener('load', function() {
+                if(xhr.status >= 200 && xhr.status <400) {
+                    resolve(JSON.parse(xhr.response)[0])
+                }
+                else {
+                    reject(console.log("Error in network status: " + xhr.statusText))
+                }
+            })
+            let payload = {'repair_id': repair_id}
+            xhr.send(JSON.stringify(payload))
+    })
+}
+
+function createRepairUpdateDiv(repair) {
+    //create a div that contains fields for customer to update
+    return new Promise(function(resolve, reject) {
+        let {credit_card_num, credit_card_exp, request_date, repair_id} = repair
+        let inputs = {'credit_card_num': credit_card_num, 'credit_card_exp': credit_card_exp, 'request_date': request_date, 'repair_id': repair_id}
+        let div = document.createElement('div');
+        div.id = 'updateDiv'
+        div.style.border = '1rem solid';
+        div.style.position = 'fixed';
+        div.style.top = "20%";
+        div.style.height = "60%";
+        div.style.left = "20%";
+        div.style.width = "60%";
+        div.style.background = 'white';
+        div.append(createInputs(inputs));
+        div.appendChild(createUpdateButton());
+        document.body.append(div)
+        document.getElementById('updaterepair_id').disabled = true;
+        document.getElementById('updateDiv').addEventListener('click',function(event) {
+            if (event.target.textContent === 'Update Request') {
+                //TODO: get relavent fields and resolve
+                let updated_fields = {}
+                let form = document.getElementById('updateRequestForm')
+                let updated_inputs = form.getElementsByTagName('input')
+                for (let updated_input of updated_inputs) {
+                    updated_fields[updated_input.name] = updated_input.value
+                }
+                document.body.removeChild(form.parentNode)
+                resolve(updated_fields)
+            }
+        })
+    })
+}
+
+function createInputs(fields) {
+    let form = document.createElement('form');
+    form.id = 'updateRequestForm';
+    let input
+    let label
+    for (const field in fields) {
+        label = document.createElement('label')
+        label.htmlFor = 'update'+field
+        label.textContent = field
+        form.append(label)
+        input = document.createElement('input')
+        if (field === 'request_date' || field === 'credit_card_exp') {
+            input.type = 'date'
+        }
+        else {
+            input.type = 'text'
+        }
+        input.name = field
+        input.value = fields[field]
+        input.id = 'update'+field
+        form.appendChild(input)
+        form.appendChild(document.createElement('br'))
+    }
+    return form
+}
+
+function createUpdateButton() {
+    let btn = document.createElement('button')
+    btn.textContent = 'Update Request';
+    btn.id = 'updateButton'
+    return btn
+}
+
+function updateRepair(repair) {
+    // repair needs to have credit_card_num, credit_card_exp, request_date, repair_id properties
+    return new Promise(function(resolve, reject) {
+        var {credit_card_num, credit_card_exp, request_date, repair_id} = repair
+        var xhr = new XMLHttpRequest();
+        xhr.open('PUT','/service_history', true);
+        xhr.setRequestHeader('Content-Type','application/json');
+        xhr.addEventListener('load', function() {
+            if(xhr.status >= 200 && xhr.status <400) {
+                // update the request date
+                let row = document.getElementById('updateRow')
+                row.firstElementChild.nextElementSibling.textContent = request_date;
+                resolve(xhr.responseText)
+            }
+            else {
+                reject(console.log("Error in network status: " + xhr.statusText))
+            }
+            document.getElementById('updateRow').id = "";
+        })
+        let payload = {'credit_card_num': credit_card_num, 'credit_card_exp': credit_card_exp, 'request_date': request_date, 'repair_id': repair_id}
+        xhr.send(JSON.stringify(payload))
+    })
+}
 
 function cancelRepair(repair_id) {
     return new Promise(function(resolve,reject) {

@@ -153,6 +153,7 @@ app.get('/bikeItem', function(req,res){
     res.render('bikeItem', context)
 });
 
+<<<<<<< HEAD
 app.post('/admin', function(req,res) {
   var context = {};
   if (req.body['adminPassword']==='1234') {
@@ -163,6 +164,238 @@ app.post('/admin', function(req,res) {
   }
 })
 
+=======
+app.get('/cart', function(req,res){
+    var context = {};
+    var cart = [
+    {name:"Capilene T-shirt",price:20, size: "L", gender: "M", itemType: "C"},
+    {name:"Biking shorts",price:100, size: "L", gender: "M", itemType: "C"},
+    {name:"Wool socks",price:30, size: "L", gender: "U", itemType: "C"},
+    {name:"Headlight",price:40.00, itemType: "G"},
+    {name:"Helmet",price:50.00, itemType: "G"},
+    {make: "Schwinn", model: "Flyer 29", size: "L", color: "Blue", 
+        type: "Road", price: 850.00, itemType: "B"},
+    {make: "Kona", model: "Honzo 29", size: "L", color: "Red", 
+          type: "Mountain", price: 1350.00, itemType: "B"}]
+    context.cart = cart;
+    res.render('cart', context)
+});
+
+app.get('/orders', function(req,res){
+    var context = {};
+    var order = [
+    {name:"Capilene T-shirt",price:20, size: "L", gender: "M", itemType: "C"},
+    {name:"Biking shorts",price:100, size: "L", gender: "M", itemType: "C"},
+    {name:"Wool socks",price:30, size: "L", gender: "U", itemType: "C"},
+    {name:"Headlight",price:40.00, itemType: "G"},
+    {name:"Helmet",price:50.00, itemType: "G"},
+    {make: "Schwinn", model: "Flyer 29", size: "L", color: "Blue", 
+        type: "Road", price: 850.00, itemType: "B"},
+    {make: "Kona", model: "Honzo 29", size: "L", color: "Red", 
+          type: "Mountain", price: 1350.00, itemType: "B"}]
+    context.order = order;
+
+    var sum = 0;
+    for (var i = 0; i < order.length; i++){
+        sum += order[i].price;
+    }
+    context.orderTotal = sum;
+    res.render('orders', context)
+});
+
+app.get('/clothing', function(req,res){
+    var context = {};
+    var sql = "SELECT catalog_id, name, size, gender, price FROM Clothing";
+    var callbackCount = 0;
+    
+    function handleRenderingOfClothing(error,results,fields){
+        console.log(results);
+        context.clothing=results;
+        complete();
+    };
+
+    function complete(){
+        callbackCount++;
+        if (callbackCount >= 1){
+            res.render('catalogClothing',context);
+        }
+    };
+    mysql.pool.query(sql, handleRenderingOfClothing);
+})
+
+app.get('/clothingItem', function(req,res){
+    var context = {};
+    var clothing = [{name: "TShirt", price: 20.00, size: "L", gender: "M", itemType: "C"}]
+    context.clothing = clothing;
+    res.render('clothingItem', context)
+});
+
+app.get('/gear', function(req,res){
+    var context = {};
+    var sql = "SELECT catalog_id, name, price FROM Gear";
+    var callbackCount = 0;
+     
+    function handleRenderingOfGear(error,results,fields){
+        console.log(results);
+        context.gear=results;
+        complete();
+    };
+
+    function complete(){
+        callbackCount++;
+        if (callbackCount >= 1){
+            res.render('catalogGear',context);
+        }
+    };
+    mysql.pool.query(sql,handleRenderingOfGear);
+})
+
+app.post('/gear', function(req,res){
+    var context = {};
+    var sql = "SELECT name, price FROM GEAR WHERE name = ?";
+    function handleRenderingOfGear(error,results,fields){
+        console.log(results);
+        context.gear=results;
+        complete();
+    };
+
+    function complete(){
+        callbackCount++;
+        if (callbackCount >= 1){
+            res.render('catalogGear',context);
+        }
+    };
+
+    mysql.pool.query(sql, handleRenderingOfGear);
+    if(req.body["searchGear"]){
+        console.log(req.body.searchGear);
+    }
+    res.render('catalogGear', context);
+
+})
+
+app.get('/gearItem', function(req,res){
+    var context = {};
+    var gear = [{name: "Headlight", price: 40.00, itemType: "G"}]
+    context.gear = gear;
+    res.render('gearItem', context)
+});
+
+app.get('/catalog',function(req,res){
+    var context = {};
+    var callbackCount = 0;
+    
+    function handleRenderingOfBicycles(error,results,fields){
+        console.log(results);
+        context.bikeCatalog=results;
+        complete();
+    };
+
+    function handleRenderingOfClothing(error,results,fields){
+        console.log(results);
+        context.clothingCatalog=results;
+        complete();
+    };
+
+    function handleRenderingOfGear(error,results,fields){
+        console.log(results);
+        context.gearCatalog=results;
+        complete();
+    };
+
+    function complete(){
+        callbackCount++;
+        if (callbackCount >= 3){
+            res.render('catalog',context);
+        }
+    };
+    var sql = "SELECT catalog_id, make, model, size, price FROM Bicycles";
+    mysql.pool.query(sql, handleRenderingOfBicycles);
+    var sql = "SELECT catalog_id, name, gender, size, price FROM Clothing";
+    mysql.pool.query(sql, handleRenderingOfClothing);
+    var sql = "SELECT catalog_id, name, price FROM Gear";
+    mysql.pool.query(sql, handleRenderingOfGear);
+})
+
+app.get('/orders',function(req,res){
+  var context= {};
+  res.render('orders',context)
+})
+
+app.get('/order_history',function(req,res,next){
+  var context= {};
+  mysql.pool.query(getOrderHistory,session.cust_id,function(err,results){
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      context.orders = results
+      res.render('order_history',context)
+    }
+    
+  })
+})
+
+app.post('/order_history', function(req,res,next) {
+  mysql.pool.query(getOrderDetails,req.body.order_num, function(err,results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      res.send(results)
+    }
+  })
+})
+
+app.delete('/order_history', function(req,res,next) {
+  // first check that items haven't already been shipped, if so then it can't be cancelled
+  numberShippedQuery(req).then(function(obj) {
+    if (obj.numberShipped > 0) {
+      res.setHeader('Content-Type','text/plain')
+      res.send('Items are shipped already, cannot cancel order!')
+      return
+    }
+    else {
+      // send a delete query
+      deleteOrderQuery(obj.order_num, res, next)
+    }
+  }).catch(function(err){
+    next(err)
+  })
+})
+
+function deleteOrderQuery(order_num, res, next) {
+  // deletes an order. sends a message if it was successful.
+  mysql.pool.query(deleteOrder,order_num,function(err,results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      res.setHeader('Content-Type','text/plain');
+      res.send('Order num:'+order_num+' has successfully been cancelled!')
+    }
+  })
+}
+
+function numberShippedQuery(req) {
+  // creates promise with returns number of items already shipped
+  return new Promise(function(resolve, reject) {
+    mysql.pool.query(numberShipped,[req.body.order_num], function(err,results) {
+      if (err) {
+        console.log(err)
+        reject(err)
+      }
+      else {
+        resolve({'numberShipped':results[0].number_shipped,'order_num':req.body.order_num})
+      }
+    })
+  })
+}
+
+>>>>>>> 2bad5505de3e0b3a16a11efec4c3fe7ae1dff6f2
 app.get('/admin',function(req,res){
   res.render('adminSignIn')
 })
@@ -481,8 +714,14 @@ app.post('/admin',function(req,res){
       })
       return
     }
-
-    return
+    if (req.body['adminPassword']==='1234') {
+      res.render('admin')
+      return
+    }
+    else {
+      res.render('adminSignIn')
+      return
+    }
 })
 
 app.use(function(req,res){

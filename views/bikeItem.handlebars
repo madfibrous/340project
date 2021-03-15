@@ -8,15 +8,10 @@
 <nav id="navbar">
   <div>
     <a href="/">Home</a>
-    <a href="/catalog"><b>Catalog</b></a>
+    <a href="/bicycles"><b>Bicycles</b></a>
     <a href="/services">Services</a>
     <a href="/customer">Customer Portal</a>
     <a href="/admin">Admin</a>
-  </div>
-  <div id="subNavBar">
-    <a href="/bicycles">Bicycles</a>
-    <a href="/gear">Gear</a>
-    <a href="/clothing">Clothing</a>
   </div>
 </nav>
 
@@ -35,7 +30,6 @@
         <th>Size</th>
         <th>Color</th>
         <th>Type</th>
-        <th>Price</th>
       </tr>
       <tr>
       <td>{{this.make}}</td>
@@ -43,12 +37,11 @@
       <td>{{this.size}}</td>
       <td>{{this.color}}</td>
       <td>{{this.type}}</td>
-      <td>${{this.price}}</td>
       </tr>
     </table>
   {{/each}}
   {{/if}}
 </div>
 </br>
-<button id= "addtocartbutton">Add to cart</button>
+<button id= "makeprimarybike">Make Primary Bike</button>
 

@@ -33,13 +33,8 @@ app.use(express.static('public'));
 //data manipulation queries for catalog page
 //getCatalog probably not needed to display catalog because
 //gear, clothing, bicycles have different attributes.
-const getCatalog = "SELECT * FROM Catalog";
-const getBicycles = "SELECT catalog_id, make, model, size, price FROM Bicycles WHERE Bicycles.catalog_id=?";
-const filterBicycles = "SELECT make, model, size, price FROM Bicycles WHERE make=?, model=?, size=?, price=?";
-const getGear = "SELECT catalog_id, name, price FROM Gear WHERE Gear.catalog_id=?";
-const filterGear = "SELECT name, price FROM Gear WHERE name=?, price=?";
-const getClothing = "SELECT catalog_id, name, size, price, gender FROM Clothing WHERE name =?, size=?, gender=?, price=?";
-const filterClothing = "SELECT name, size, gender, price FROM Clothing WHERE name=?, size=?, gender=?, price=?";
+const getBicycles = "SELECT catalog_id, make, model, size FROM Bicycles WHERE Bicycles.catalog_id=?";
+const filterBicycles = "SELECT make, model, size FROM Bicycles WHERE make=?, model=?, size=?, price=?";
 
 // data manipulation queries for services page
 const getServices = "SELECT service_id, name, price FROM Services";
@@ -58,13 +53,6 @@ const getCustomer = "SELECT * FROM Customers WHERE cust_id =?";
 const updateCustomer = `UPDATE Customers
   SET fname=?, lname=?, address=?, city=?, zip=?, phone=?
   WHERE cust_id = ?`;
-const getOrderHistory = 
-  `SELECT Orders.order_num, Orders.order_date, Orders.order_complete, SUM(Order_items.qty) AS item_quantity, SUM(Order_items.price_paid) AS total_price
-  FROM Customers
-  INNER JOIN Orders ON Orders.cust_id=Customers.cust_id
-  INNER JOIN Order_items ON Order_items.order_num=Orders.order_num
-  WHERE Orders.cust_id=?
-  GROUP BY Orders.order_num`;
 const getRepairRequests = 
   `SELECT Repair_requests.repair_id, DATE_FORMAT(Repair_requests.request_date,'%Y-%m-%d') AS request_date, Repair_requests.service_complete, COUNT(Repair_request_items.repair_id) AS total_services, SUM(Repair_request_items.price_paid) AS total_paid
   FROM Customers
@@ -74,23 +62,12 @@ const getRepairRequests =
   GROUP BY Repair_requests.repair_id`;
 const getRepair = 
   `SELECT repair_id, cust_id, DATE_FORMAT(request_date, '%Y-%m-%d') AS request_date, credit_card_num, DATE_FORMAT(credit_card_exp, '%Y-%m-%d') AS credit_card_exp FROM Repair_requests WHERE repair_id = ? and cust_id = ?`;
-const getRecentOrders = 
-  `SELECT Orders.order_num, Orders.order_date, Orders.order_complete FROM Customers
-  INNER JOIN Orders ON Orders.cust_id=Customers.cust_id
-  WHERE Orders.cust_id=?
-  ORDER BY DESC
-  LIMIT 3`;
 const getRecentRepairs = 
   `SELECT Repair_requests.repair_id, Repair_requests.request_date, Repair_requests.service_complete FROM Customers
   INNER JOIN Repair_requests ON Repair_requests.cust_id = Customers.cust_id
   WHERE Customers.cust_id=?
   ORDER BY DESC
   LIMIT 3`;
-const getOrderDetails = 
-  //TODO: join catalog tables so can use name of product rather than catalog_id
-  `SELECT Order_items.catalog_id, Order_items.price_paid, Order_items.shipped, Order_items.shipping_date, Order_items.qty 
-  FROM Order_items
-  WHERE Order_items.order_num = ?`;
 const getRepairDetails = 
   `SELECT Services.name, Repair_request_items.complete, Repair_request_items.price_paid 
   FROM Repair_request_items
@@ -101,16 +78,6 @@ const numberRepaired =
   `SELECT COUNT(Repair_request_items.service_id) AS number_repaired
   FROM Repair_request_items
   WHERE Repair_request_items.service_id = ? AND Repair_request_items.complete = 1`;
-const updateOrder = 
-  `UPDATE Orders
-  SET credit_card_num = ?, credit_card_exp = ?
-  WHERE order_num = ?`;
-const numberShipped =
-// find the number of items already shipped
-  `SELECT COUNT(Order_items.catalog_id) AS number_shipped
-  FROM Order_items
-  WHERE Order_items.order_num = ? AND Order_items.shipped = 1`;
-const deleteOrder = "DELETE FROM Orders WHERE order_num = ?";
 const updateRepairRequest = 
   `UPDATE Repair_requests
   set credit_card_num = ?, credit_card_exp =?, request_date =?
@@ -126,19 +93,9 @@ const insertBike =
   `INSERT INTO Bicycles
   (make, model, size, color, type, price, qty)
   VALUES (?, ?, ?, ?, ?,?, ?)`;
-const insertClothing =
-  `INSERT INTO Clothing (name, size, gender, price, qty)
-  VALUES (?, ?, ?, ?, ?)`;
-const insertGear = 
-  `INSERT INTO Gear (name, price, qty)
-  VALUES (?, ?, ?)`;
 const insertService =
   `INSERT INTO Services (name, expected_turnaround, price)
   VALUES (?, ?, ?)`;
-const updateOrderItems = 
-  `UPDATE Order_items
-  SET order_num = ?, catalog_id = ?, shipping_date = ?,
-  WHERE Order_items.order_num = ?`;
 const updateRepairRequestItems =
   `UPDATE Repair_request_items
   SET repair_id = ?, service_id = ?,
@@ -148,14 +105,6 @@ const updateBicycle =
   SET make = ?, model = ?, size = ?, color = ?, type = ?,
   color = ?, price = ?, qty = ?,
   WHERE Bicycles.catalog_id = ?`;
-const updateClothing = 
-  `UPDATE Clothing
-  SET name = ?, size = ?, gender = ?, price = ?, qty = ?,
-  WHERE Clothing.catalog_id = ?`;
-const updateGear = 
-  `UPDATE Gear
-  SET name = ?, price = ?, qty = ?,
-  WHERE Gear.catalog_id = ?`;
 const updateService = 
   `UPDATE Services
   SET name = ?, expected_turnaround = ?, price = ?,
@@ -179,260 +128,30 @@ app.get('/bicycles', function(req,res){
     function complete(){
         callbackCount++;
         if (callbackCount >= 1){
-            res.render('catalogBicycles',context);
+            res.render('bicycles',context);
         }
     };
 
     /*Sort bicycles by type*/
     if (req.query.make){
-        var sql = "SELECT catalog_id, make, model, size, price, type FROM Bicycles WHERE make = ?";
+        var sql = "SELECT catalog_id, make, model, size, type FROM Bicycles WHERE make = ?";
         var inserts = [req.query.make];
         mysql.pool.query(sql, inserts, handleRenderingOfBicycles);
     }
     else{
-        var sql = "SELECT catalog_id, make, model, size, price FROM Bicycles";
+        var sql = "SELECT catalog_id, make, model, size FROM Bicycles";
         mysql.pool.query(sql, handleRenderingOfBicycles);
     }
 })
 
 app.get('/bikeItem', function(req,res){
     var context = {};
-    var sql = "SELECT catalog_id, make, model, size, type, price, color, qty FROM BICYCLES WHERE "
+    var sql = "SELECT catalog_id, make, model, size, type, color FROM BICYCLES WHERE "
     mysql.pool.query(sql,function(error,results,fields){
         context.bikes = results;
     });
     res.render('bikeItem', context)
 });
-
-app.get('/cart', function(req,res){
-    var context = {};
-    var cart = [
-    {name:"Capilene T-shirt",price:20, size: "L", gender: "M", itemType: "C"},
-    {name:"Biking shorts",price:100, size: "L", gender: "M", itemType: "C"},
-    {name:"Wool socks",price:30, size: "L", gender: "U", itemType: "C"},
-    {name:"Headlight",price:40.00, itemType: "G"},
-    {name:"Helmet",price:50.00, itemType: "G"},
-    {make: "Schwinn", model: "Flyer 29", size: "L", color: "Blue", 
-        type: "Road", price: 850.00, itemType: "B"},
-    {make: "Kona", model: "Honzo 29", size: "L", color: "Red", 
-          type: "Mountain", price: 1350.00, itemType: "B"}]
-    context.cart = cart;
-    res.render('cart', context)
-});
-
-app.get('/orders', function(req,res){
-    var context = {};
-    var order = [
-    {name:"Capilene T-shirt",price:20, size: "L", gender: "M", itemType: "C"},
-    {name:"Biking shorts",price:100, size: "L", gender: "M", itemType: "C"},
-    {name:"Wool socks",price:30, size: "L", gender: "U", itemType: "C"},
-    {name:"Headlight",price:40.00, itemType: "G"},
-    {name:"Helmet",price:50.00, itemType: "G"},
-    {make: "Schwinn", model: "Flyer 29", size: "L", color: "Blue", 
-        type: "Road", price: 850.00, itemType: "B"},
-    {make: "Kona", model: "Honzo 29", size: "L", color: "Red", 
-          type: "Mountain", price: 1350.00, itemType: "B"}]
-    context.order = order;
-
-    var sum = 0;
-    for (var i = 0; i < order.length; i++){
-        sum += order[i].price;
-    }
-    context.orderTotal = sum;
-    res.render('orders', context)
-});
-
-app.get('/clothing', function(req,res){
-    var context = {};
-    var sql = "SELECT catalog_id, name, size, gender, price FROM Clothing";
-    var callbackCount = 0;
-    
-    function handleRenderingOfClothing(error,results,fields){
-        console.log(results);
-        context.clothing=results;
-        complete();
-    };
-
-    function complete(){
-        callbackCount++;
-        if (callbackCount >= 1){
-            res.render('catalogClothing',context);
-        }
-    };
-    mysql.pool.query(sql, handleRenderingOfClothing);
-})
-
-app.get('/clothingItem', function(req,res){
-    var context = {};
-    var clothing = [{name: "TShirt", price: 20.00, size: "L", gender: "M", itemType: "C"}]
-    context.clothing = clothing;
-    res.render('clothingItem', context)
-});
-
-app.get('/gear', function(req,res){
-    var context = {};
-    var sql = "SELECT catalog_id, name, price FROM Gear";
-    var callbackCount = 0;
-     
-    function handleRenderingOfGear(error,results,fields){
-        console.log(results);
-        context.gear=results;
-        complete();
-    };
-
-    function complete(){
-        callbackCount++;
-        if (callbackCount >= 1){
-            res.render('catalogGear',context);
-        }
-    };
-    mysql.pool.query(sql,handleRenderingOfGear);
-})
-
-app.post('/gear', function(req,res){
-    var context = {};
-    var sql = "SELECT name, price FROM GEAR WHERE name = ?";
-    function handleRenderingOfGear(error,results,fields){
-        console.log(results);
-        context.gear=results;
-        complete();
-    };
-
-    function complete(){
-        callbackCount++;
-        if (callbackCount >= 1){
-            res.render('catalogGear',context);
-        }
-    };
-
-    mysql.pool.query(sql, handleRenderingOfGear);
-    if(req.body["searchGear"]){
-        console.log(req.body.searchGear);
-    }
-    res.render('catalogGear', context);
-
-})
-
-app.get('/gearItem', function(req,res){
-    var context = {};
-    var gear = [{name: "Headlight", price: 40.00, itemType: "G"}]
-    context.gear = gear;
-    res.render('gearItem', context)
-});
-
-app.get('/catalog',function(req,res){
-    var context = {};
-    var callbackCount = 0;
-    
-    function handleRenderingOfBicycles(error,results,fields){
-        console.log(results);
-        context.bikeCatalog=results;
-        complete();
-    };
-
-    function handleRenderingOfClothing(error,results,fields){
-        console.log(results);
-        context.clothingCatalog=results;
-        complete();
-    };
-
-    function handleRenderingOfGear(error,results,fields){
-        console.log(results);
-        context.gearCatalog=results;
-        complete();
-    };
-
-    function complete(){
-        callbackCount++;
-        if (callbackCount >= 3){
-            res.render('catalog',context);
-        }
-    };
-    var sql = "SELECT catalog_id, make, model, size, price FROM Bicycles";
-    mysql.pool.query(sql, handleRenderingOfBicycles);
-    var sql = "SELECT catalog_id, name, gender, size, price FROM Clothing";
-    mysql.pool.query(sql, handleRenderingOfClothing);
-    var sql = "SELECT catalog_id, name, price FROM Gear";
-    mysql.pool.query(sql, handleRenderingOfGear);
-})
-
-app.get('/orders',function(req,res){
-  var context= {};
-  res.render('orders',context)
-})
-
-app.get('/order_history',function(req,res,next){
-  var context= {};
-  mysql.pool.query(getOrderHistory,session.cust_id,function(err,results){
-    if (err) {
-      console.log(err)
-      next(err)
-    }
-    else {
-      context.orders = results
-      res.render('order_history',context)
-    }
-    
-  })
-})
-
-app.post('/order_history', function(req,res,next) {
-  mysql.pool.query(getOrderDetails,req.body.order_num, function(err,results) {
-    if (err) {
-      console.log(err)
-      next(err)
-    }
-    else {
-      res.send(results)
-    }
-  })
-})
-
-app.delete('/order_history', function(req,res,next) {
-  // first check that items haven't already been shipped, if so then it can't be cancelled
-  numberShippedQuery(req).then(function(obj) {
-    if (obj.numberShipped > 0) {
-      res.setHeader('Content-Type','text/plain')
-      res.send('Items are shipped already, cannot cancel order!')
-      return
-    }
-    else {
-      // send a delete query
-      deleteOrderQuery(obj.order_num, res, next)
-    }
-  }).catch(function(err){
-    next(err)
-  })
-})
-
-function deleteOrderQuery(order_num, res, next) {
-  // deletes an order. sends a message if it was successful.
-  mysql.pool.query(deleteOrder,order_num,function(err,results) {
-    if (err) {
-      console.log(err)
-      next(err)
-    }
-    else {
-      res.setHeader('Content-Type','text/plain');
-      res.send('Order num:'+order_num+' has successfully been cancelled!')
-    }
-  })
-}
-
-function numberShippedQuery(req) {
-  // creates promise with returns number of items already shipped
-  return new Promise(function(resolve, reject) {
-    mysql.pool.query(numberShipped,[req.body.order_num], function(err,results) {
-      if (err) {
-        console.log(err)
-        reject(err)
-      }
-      else {
-        resolve({'numberShipped':results[0].number_shipped,'order_num':req.body.order_num})
-      }
-    })
-  })
-}
 
 app.post('/admin', function(req,res) {
   var context = {};
@@ -728,36 +447,8 @@ app.post('/admin',function(req,res){
         //sql
     }
     if (req.body['addBike']){
-        var sql = "INSERT INTO Bicycles (make, model, size, color, type, price, qty) VALUES (?,?,?,?,?,?,?)";
-        var inserts = [req.body.make, req.body.model, req.body.size, req.body.color, req.body.type, req.body.price, req.body.qty];
-        sql = mysql.pool.query(sql, inserts,function(error, results,fields){
-            if(error){
-                console.log(JSON.stringify(error));
-                res.write(JSON.stringify(error));
-                res.end();
-            }else{
-                res.redirect('/admin');
-            }
-        });
-    }
-
-    if (req.body['addClothing']){
-        var sql = "INSERT INTO Clothing (name, size, gender, price, qty) VALUES (?,?,?,?,?)";
-        var inserts = [req.body.clothingName, req.body.clothingSize, req.body.clothingGender, req.body.clothingPrice, req.body.clothingQty];
-        sql = mysql.pool.query(sql, inserts,function(error, results,fields){
-            if(error){
-                console.log(JSON.stringify(error));
-                res.write(JSON.stringify(error));
-                res.end();
-            }else{
-                res.redirect('/admin');
-            }
-        });
-    }
-
-    if (req.body['addGear']){
-        var sql = "INSERT INTO Gear (name, price, qty) VALUES (?,?,?)";
-        var inserts = [req.body.gearName, req.body.gearPrice, req.body.gearQty];
+        var sql = "INSERT INTO Bicycles (make, model, size, color, type) VALUES (?,?,?,?,?,?,?)";
+        var inserts = [req.body.make, req.body.model, req.body.size, req.body.color, req.body.type];
         sql = mysql.pool.query(sql, inserts,function(error, results,fields){
             if(error){
                 console.log(JSON.stringify(error));

@@ -3,10 +3,6 @@
 
 /* --------- QUERIES FOR CATALOG PAGES --------- */
 
-/* SEARCH ALL CATALOG NUMBERS */
-
-SELECT * FROM Catalog;
-
 /* Search all bikes */
 
 SELECT make, model, size, price FROM Bicycles;
@@ -14,22 +10,6 @@ SELECT make, model, size, price FROM Bicycles;
 /* filter bikes */
 
 SELECT make, model, size, price FROM Bicycles WHERE make=:makeInput, model=:modelInput, size=:sizeInput, price=:priceInput;
-
-/* Search all gear */
-
-SELECT name, price FROM Gear;
-
-/* filter bikes */
-
-SELECT name, price FROM Gear WHERE name=:name, price=:priceInput;
-
-/* search all clothing */
-
-SELECT name, size, price FROM Clothing;
-
-/* filter clothing */
-
-SELECT name, size, price FROM clothing WHERE name=:name, size=:sizeInput, price=:prizeInput;
 
 
 /* ------------- QUERIES FOR SERVICES PAGES ------------ */
@@ -69,13 +49,6 @@ UPDATE Customers
     SET fname=:fnameInput, lname=:lnameInput, address=:addressInput, city=:cityInput, zip=:zipInput, phone=:phoneInput
     WHERE cust_id = :cust_id;
 
-/* query to view customer's order history. Shows Order date and number of items orders as well as price paid */
-
-SELECT Orders.order_date, Orders.order_complete, SUM(Order_items.qty), SUM(Order_items.price_paid) FROM Customers
-    INNER JOIN Orders ON Orders.cust_id=Customers.cust_id
-    INNER JOIN Order_items ON Order_items.cust_id=Customers.cust_id AND Order_items.order_num=Orders.order_num
-    WHERE Orders.cust_id=:cust_idInput
-    GROUP BY Orders.order_date;
 
 /* query to view customer's service history. Shows request date and number of services done as well as price paid */ 
 
@@ -86,13 +59,6 @@ SELECT Repair_requests.request_date, Repair_requests.service_complete, COUNT(Rep
     WHERE Repair_requests.cust_id=:cust_idInput
     GROUP BY Repair_requests.request_date;
 
-/* query to view 3 most recent orders */
-
-SELECT Orders.order_num, Orders.order_date, Orders.order_complete FROM Customers
-    INNER JOIN Orders ON Orders.cust_id=Customers.cust_id
-    WHERE Orders.cust_id=:cust_idInput
-    ORDER BY DESC
-    LIMIT 3;
 
 /* query to view 3 most recent repair requests */
 
@@ -102,11 +68,6 @@ SELECT Repair_requests.repair_id, Repair_requests.request_date, Repair_requests.
     ORDER BY DESC
     LIMIT 3;
 
-/* query to view details of an order (find all the associates order items). would like to replace catalog_id with names, may need to make a constraint as Name which creates one from Make and Model for bicycles */
-
-SELECT Order_items.price_paid, Order_items.shipping_date, Order_items.qty, Order_items.catalog_id
-    FROM Order_items
-    WHERE Order_items.order_num = :order_numInput;
 
 /* view details of a repair request (all associated services done) */
 
@@ -115,15 +76,6 @@ SELECT Repair_request_items.complete, Repair_request_items.price_paid, Services.
     INNER JOIN Services ON Services.service_id=Repair_request_items.service_id
     WHERE Repair_request_items.repair_id = :repair_idInput;
 
-/* Update the billing information of an order before it's been shipped */
-
-UPDATE Orders
-    SET credit_card_num = :credit_card_numInput, credit_card_exp = :credit_card_expInput
-    WHERE order_num = :order_numInput;
-
-/* DELETE an order */
-
-DELETE FROM Orders WHERE order_num = :order_numInput;
 
 /* Update the billing information or request date of a repair request */
 
@@ -149,25 +101,9 @@ INSERT INTO Bicycles (make, model, size, color, type, price, qty)
 VALUES (:makeInput, :modelInput, :sizeInput, :colorInput, :typeInput, :priceInput, :qtyInput);
 
 
-/*INSERT query to add a new clothing item*/
-
-INSERT INTO Clothing (name, size, gender, price, qty)
-VALUES (:nameInput, :sizeInput, :genderInput, :priceInput, :qtyInput);
-
-
-/*INSERT query to add a new gear item*/
-
-INSERT INTO Gear (name, price, qty)
-VALUES (:nameInput, :priceInput, :qtyInput);
-
 /* INSERT a new service */
 INSERT INTO Services (name, expected_turnaround, price)
 VALUES (:name, :expected_turnaround, :price);
-
-/*UPDATE query to update order item*/
-UPDATE Order_items
-SET order_num = :order_numInput, catalog_id = :catalog_idInput, shipping_date = :shipping_dateInput,
-WHERE Order_items.order_num = :order_numInput;
 
 
 /*UPDATE query to update repair request item*/
@@ -182,16 +118,6 @@ SET make = :makeInput, model = :modelInput, size = :sizeInput, color = :colorInp
 color = :colorInput, price = :priceInput, qty = :qtyInput,
 WHERE Bicycles.catalog_id = :catalog_idInput;
 
-
-/*UPDATE query to update clothing item*/
-UPDATE Clothing
-SET name = :nameInput, size = :sizeInput, gender = :genderInput, price = :priceInput, qty = :qtyInput,
-WHERE Clothing.catalog_id = :catalog_idInput;
-
-/*UPDATE query to update gear item*/
-UPDATE Gear
-SET name = :nameInput, price = :priceInput, qty = :qtyInput,
-WHERE Gear.catalog_id = :catalog_idInput;
 
 /*UPDATE query to update services */
 UPDATE Services

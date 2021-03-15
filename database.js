@@ -434,9 +434,18 @@ function numberShippedQuery(req) {
   })
 }
 
+app.post('/admin', function(req,res) {
+  var context = {};
+  if (req.body['adminPassword']==='1234') {
+    res.render('admin',context)
+  }
+  else {
+    res.render('adminSignIn', context)
+  }
+})
+
 app.get('/admin',function(req,res){
-  var context= {};
-  res.render('admin',context)
+  res.render('adminSignIn')
 })
 
 app.get('/services',function(req,res){

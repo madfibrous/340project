@@ -25,7 +25,12 @@
     <label for="bikeModel">Model:</label>
     <input type="text" name="model" id="bikeModel"><br>
     <label for="bikeSize">Size:</label>
-    <input type="text" name="size" id="bikeSize">
+    <select name="size" id="bikeSize">
+        <option value="S">S</option>
+        <option value="M">M</option>
+        <option value="L">L</option>
+        <option value="XL">XL</option>
+    </select>
     <label for="bikeType">Type:</label>
     <select name="type" id="bikeType">
         <option value="R">Road Bike</option>
@@ -49,6 +54,9 @@
 
 
 <h4>Update Repair Request Item:</h4>
+<button onclick="location.href='/inProcess'">See in process repairs</button>
+<br><br>
+<!--
 <span>**This will set Repair_request to complete when all associated Repair_request_items are complete**</span>
 <form method="POST" id="updateOrderItem" action="/admin">
     <label for="repair_id">Repair ID:</label>
@@ -57,10 +65,11 @@
     <input type="text" name="service_id" id="service_id">
     <input type="submit" name="repairComplete" value="Complete">
 </form><br>
+-->
 
 <h4>Update Bike</h4>
-<button onclick="location.href='/bikeLookup'">Update Bikes</button>
+<button onclick="location.href='/bikeLookup'">See all Bikes</button>
 <br><br>
 
 <h4>Update Service:</h4>
-<button onclick="location.href='/serviceLookup'">Update Services</button>
+<button onclick="location.href='/serviceLookup'">See all Services</button>

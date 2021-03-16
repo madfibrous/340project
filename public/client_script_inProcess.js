@@ -8,8 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
             removeRow(row)
         }).catch(function(err){ 
             console.log('Error in network status: '+err)
-        }
-            
+        } 
     )
     })
 })

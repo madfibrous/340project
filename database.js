@@ -49,6 +49,13 @@ const signInQuery = "SELECT cust_id FROM Customers WHERE cust_id=?";
 const createCustomer = `INSERT INTO Customers (fname, lname, address, city, zip, phone) VALUES 
   (?, ?, ?, ?, ?, ?)`; 
 const getCustomer = "SELECT * FROM Customers WHERE cust_id =?";
+const getPrimaryBike = 
+  `SELECT catalog_id, fname, lname, make, model, size, color, type
+    FROM Customers
+    INNER JOIN Bicycles ON Bicycles.catalog_id = Customers.primarybike
+    WHERE Customers.cust_id = ?`;
+const removePrimaryBikeQuery = `UPDATE Customers SET primarybike = NULL WHERE cust_id = ?`;
+const updatePrimaryBikeQuery = `UPDATE Customers SET primarybike = ? WHERE cust_id = ?`;
 const updateCustomer = `UPDATE Customers
   SET fname=?, lname=?, address=?, city=?, zip=?, phone=?
   WHERE cust_id = ?`;
@@ -364,7 +371,7 @@ function numberRepairsCompleteQuery(req) {
   })
 }
 
-app.get('/customer',function(req,res){
+app.get('/customer',function(req,res, next){
   var context = {}
   if (!session.cust_id) {
     res.render('signIn',context)
@@ -378,7 +385,35 @@ app.get('/customer',function(req,res){
     else {
       context.fname = results[0].fname;
       context.lname = results[0].lname;
-      res.render('customer',context)
+      mysql.pool.query(getPrimaryBike, session.cust_id, function(err, results) {
+        if (err) {
+          console.log(err);
+          next(err)
+        }
+        else {
+          context.primarybike = results;
+          res.render('customer',context)
+        }
+      })
+    }
+  })
+})
+
+
+app.put('/customer',function(req,res,next) {
+  mysql.pool.query(removePrimaryBikeQuery, session.cust_id, function(err, results) {
+    if (err) {
+      console.log(err);
+      next(err)
+    }
+    else {
+      if (results.changedRows === 0) {
+        res.status(500)
+        res.send('Something went wrong')
+      }
+      else {
+        res.send('successfully removed')
+      }
     }
   })
 })
@@ -411,8 +446,16 @@ app.post('/customer',function(req,res, next){
         session.cust_id = cust_id;
         context.fname = results[0].fname;
         context.lname = results[0].lname;
-        res.render('customer',context)
-        return
+        mysql.pool.query(getPrimaryBike, cust_id, function(err, results) {
+          if (err) {
+            console.log(err);
+            next(err)
+          }
+          else {
+            context.primarybike = results;
+            res.render('customer',context)
+          }
+        })
       }
     })
   }
@@ -454,6 +497,33 @@ app.post('/customer',function(req,res, next){
       }
     })
     
+  }
+})
+
+app.get('/updatePrimaryBike', function(req, res, next) {
+  if (req.query['catalog_id']) {
+    mysql.pool.query(updatePrimaryBikeQuery, [req.query.catalog_id, session.cust_id], function (err, results) {
+      if (err) {
+        console.log(err)
+        next(err)
+      }
+      else {
+        res.redirect('/customer')
+      }
+    })
+  }
+  else {
+    mysql.pool.query(getAllBicycles+' ORDER BY model', function(err, results) {
+      if (err) {
+        console.log(err)
+        next(err)
+      }
+      else {
+        var context = {};
+        context.bicycles = results;
+        res.render('updatePrimaryBike', context)
+      }
+    })
   }
 })
 
@@ -585,7 +655,7 @@ app.put('/inProcess', function(req, res, next) {
       next(err)
     }
     else {
-      if (results.chnagedRows === 0) {
+      if (results.changedRows === 0) {
         res.statusCode(500)
         res.send('Something went wrong')
       }

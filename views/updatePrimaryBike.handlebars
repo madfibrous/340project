@@ -1,0 +1,41 @@
+<link rel="stylesheet" href="client_style_updatePrimaryBike.css">
+
+<div id="header">
+  <h1>Beave's Bikes</h1>
+</div>
+
+
+<nav id="navbar">
+  <div>
+    <a href="/">Home</a>
+    <a href="/bicycles">Bicycles</a>
+    <a href="/services">Services</a>
+    <a href="/customer"><b>Customer Portal</b></a>
+    <a href="/admin">Admin</a>
+  </div>
+</nav>
+
+<table>
+    <thead>
+        <th>Catalog ID</th>
+        <th>Make</th>
+        <th>Model</th>
+        <th>Size</th>
+        <th>Color</th>
+        <th>Type</th>
+        <th></th>
+    </thead>
+    <tbody>
+    {{#each bicycles}}
+        <tr>
+            <td>{{this.catalog_id}}</td>
+            <td>{{this.make}}</td>
+            <td>{{this.model}}</td>
+            <td>{{this.size}}</td>
+            <td>{{this.color}}</td>
+            <td>{{this.type}}</td>
+            <td><button onclick="location.href='/updatePrimaryBike?catalog_id={{this.catalog_id}}'">Make Primary Bike</button></td>
+        </tr>
+    {{/each}}
+    </tbody>
+</table>

@@ -30,6 +30,40 @@
 
 <h5>Customer History</h5>
 <button onclick="location.href='/service_history'">Service History</button>
+<br><br>
+
+<h5>Primary Bike: </h5>
+<table id='primaryBikeTable'>
+  <thead>
+    <th>catalog ID</th>
+    <th>Make</th>
+    <th>Model</th>
+    <th>Size</th>
+    <th>Color</th>
+    <th>Type</th>
+    <th></th>
+  </thead>   
+  <tbody>
+  {{#if primarybike}}
+  {{#each primarybike}}
+    <tr>
+      <td>{{this.catalog_id}}</td>
+      <td>{{this.make}}</td>
+      <td>{{this.model}}</td>
+      <td>{{this.size}}</td>
+      <td>{{this.color}}</td>
+      <td>{{this.type}}</td>
+      <td><button>Remove</button></td>
+    </tr>
+  {{/each}}
+  {{else}}
+    <tr>
+      <td>NULL</td>
+    </tr> 
+  {{/if}}
+  </tbody>
+</table>
 
 
+<button onclick="location.href='/updatePrimaryBike'">Update primary bike</button>
 <script type='text/javascript' src='client_script_customer.js'></script>

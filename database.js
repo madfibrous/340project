@@ -102,10 +102,25 @@ const insertBike =
 const insertService =
   `INSERT INTO Services (name, expected_turnaround, price)
   VALUES (?, ?, ?)`;
+const getInProcessRepairItems = 
+`SELECT Repair_request_items.repair_id, Repair_request_items.service_id, Services.name, Repair_requests.cust_id, 
+  Customers.fname, Customers.lname, DATE_FORMAT(Repair_requests.request_date, '%Y-%m-%d') AS request_date
+FROM Repair_request_items
+INNER JOIN Repair_requests ON Repair_requests.repair_id = Repair_request_items.repair_id
+INNER JOIN Services ON Repair_request_items.service_id = Services.service_id
+INNER JOIN Customers ON Repair_requests.cust_id = Customers.cust_id
+WHERE Repair_request_items.complete = 0
+ORDER BY Repair_requests.repair_id ASC`;
 const updateRepairRequestItems =
   `UPDATE Repair_request_items
-  SET repair_id = ?, service_id = ?,
-  WHERE Repair_request_items.repair_id = ? OR Repair_request_items.service_id = ?`;
+  SET complete = 1
+  WHERE repair_id = ? AND service_id = ?`;
+const checkRepairCompleteQuery = 
+    `SELECT * FROM Repair_request_items WHERE complete = 0 AND repair_id = ?`;
+const setRepairToCompleteQuery = 
+  `UPDATE Repair_requests
+  SET service_complete = 1
+  WHERE repair_id = ?`;
 const updateBicycle = 
   `UPDATE Bicycles
   SET make = ?, model = ?, size = ?, color = ?, type = ?
@@ -458,6 +473,8 @@ app.post('/admin',function(req,res, next){
                 res.write(JSON.stringify(error));
                 next(error);
             }else{
+                let context = {}
+                context.message = 'Inserted new bike with ID: '+results.insertId;
                 res.render('/admin');
             }
         });
@@ -469,7 +486,7 @@ app.post('/admin',function(req,res, next){
         if (!err) {
           if (results.insertId) {
             var context = {}
-            context.message = 'Successfully Inserted';
+            context.message = 'Successfully inserted new service with ID:' + results.insertId;
             res.render('admin',context)
           }
           else {
@@ -537,6 +554,63 @@ app.post('/customerLookup', function(req, res, next) {
     })
   }
 })
+
+app.get('/inProcess', function(req,res, next) {
+  mysql.pool.query(getInProcessRepairItems, function(err, results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      var context = {};
+      context.repairs = results;
+      res.render('inProcess', context)
+    }
+  })
+})
+
+app.put('/inProcess', function(req, res, next) {
+  mysql.pool.query(updateRepairRequestItems, [req.body.repair_id, req.body.service_id], function (err, results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      if (results.chnagedRows === 0) {
+        res.statusCode(500)
+        res.send('Something went wrong')
+      }
+      else {
+        res.send('successfully updated')
+        // check if overall repair is now complete
+        checkRepairComplete(req.body.repair_id)
+      }
+    }
+  })
+})
+
+function checkRepairComplete(repair_id) {
+  mysql.pool.query(checkRepairCompleteQuery, repair_id, function(err, results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      if (results.length === 0) {
+        setRepairToComplete(repair_id)
+      }
+    }
+  })
+}
+
+function setRepairToComplete(repair_id) {
+  mysql.pool.query(setRepairToCompleteQuery, repair_id, function(err, results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+  })
+}
 
 app.get('/serviceLookup', function(req,res, next) {
   mysql.pool.query(getAllServices, function(err, results) {

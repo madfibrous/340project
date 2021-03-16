@@ -439,7 +439,7 @@ app.get('/admin',function(req,res){
   res.render('adminSignIn')
 })
 
-app.post('/admin',function(req,res){
+app.post('/admin',function(req,res, next){
     if (req.body['searchCustomer']){
         //var sql = SELECT statement for customer
         //var inserts
@@ -447,13 +447,17 @@ app.post('/admin',function(req,res){
     }
     if (req.body['addBike']){
         var inserts = [req.body.make, req.body.model, req.body.size, req.body.color, req.body.type];
+<<<<<<< HEAD
         mysql.pool.query(insertBike, inserts,function(error, results,fields){
+=======
+        mysql.pool.query(insertBike, inserts, function(error, results,fields){
+>>>>>>> 770e17291962ed1b4e95a6791cdd6da0dd7ab288
             if(error){
                 console.log(JSON.stringify(error));
                 res.write(JSON.stringify(error));
-                res.end();
+                next(error);
             }else{
-                res.redirect('/admin');
+                res.render('/admin');
             }
         });
     }

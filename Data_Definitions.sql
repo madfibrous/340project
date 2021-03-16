@@ -7,7 +7,7 @@ CREATE TABLE Customers (
     city VARCHAR (255) NOT NULL,
     zip CHAR (5) NOT NULL,
     phone CHAR (10),
-    primary_bike INT (11)
+    primarybike INT (11)
 )engine=innodb;
 
 /* changed all the varchar length to 255 */
@@ -74,9 +74,10 @@ ALTER TABLE Repair_request_items
         ON DELETE CASCADE
 ;
 
+ALTER TABLE Customers
+    ADD FOREIGN KEY (primarybike) REFERENCES Bicycles(catalog_id);
 
 /*Set increment values for catalog items*/
-ALTER TABLE Bicycles AUTO_INCREMENT=1;
 
 
 INSERT INTO Bicycles (make, model, size, color, type)
@@ -169,24 +170,41 @@ VALUES ('Commencal', 'Meta TR', 'S', 'white', 'M'),
  ('Zoom', '2', 'L', 'white', 'R'),
  ('Zoom', '2', 'XL', 'white', 'R');
 
+/*Dumping data for table 'Serivces'*/
+
+INSERT INTO Services(name, expected_turnaround, price)
+VALUES ('Quick Service', 2, 29.99),
+('Complete Service', 3, 44.99),
+('Tire Change', 2, 30),
+('Bottom Bracket', 3, 60),
+('Headset', 2, 60);
+
 /*Dumping data for table 'Customers'*/
 
-INSERT INTO Customers(cust_id, fname, lname, address, city, zip, phone)
-VALUES (1, 'Bob', 'Costas', '1344 Seagull Dr.', 'Los Angeles', '90004', '3102433456'),
-(2, 'Shirley', 'Winger', '222 Los Bombas Rd.', 'San Dimas', '91204', '6267345590'),
-(3, 'Todd', 'Jones', '123 Sesame St.', 'Inglewood', '90304', '8182933456'),
-(4, 'Eric', 'Estrada', '4421 Van Nuys Blvd. #10', 'Los Angeles', '90041', '9498883497');
+INSERT INTO Customers(fname, lname, address, city, zip, phone, primarybike)
+VALUES ('Bob', 'Costas', '1344 Seagull Dr.', 'Los Angeles', '90004', '3102433456', 2),
+('Shirley', 'Winger', '222 Los Bombas Rd.', 'San Dimas', '91204', '6267345590', NULL),
+('Todd', 'Jones', '123 Sesame St.', 'Inglewood', '90304', '8182933456',6),
+('Eric', 'Estrada', '4421 Van Nuys Blvd. #10', 'Los Angeles', '90041', '9498883497', 10);
 
 
 /*Dumping data for table 'Repair_requests'*/
 
-INSERT INTO Repair_requests(repair_id, cust_id, request_date, credit_card_num, credit_card_exp, service_complete)
-VALUES (1, 1, STR_TO_DATE('1-20-23', '%m-%d-%Y'), 4815645593447721, STR_TO_DATE('1-20-23', '%m-%d-%Y'), FALSE),
-(2, 2, STR_TO_DATE('2-27-21', '%m-%d-%Y'), 4913645293497732, STR_TO_DATE('2-20-22', '%m-%d-%Y'), TRUE);
+INSERT INTO Repair_requests(cust_id, request_date, credit_card_num, credit_card_exp, service_complete)
+VALUES (1, STR_TO_DATE('1-20-23', '%m-%d-%Y'), 4815645593447721, STR_TO_DATE('1-20-23', '%m-%d-%Y'), FALSE),
+(2, STR_TO_DATE('2-27-21', '%m-%d-%Y'), 4913645293497732, STR_TO_DATE('2-20-22', '%m-%d-%Y'), TRUE),
+(3, STR_TO_DATE('3-30-21', '%m-%d-%Y'), 4913645293497732, STR_TO_DATE('2-20-22', '%m-%d-%Y'), FALSE),
+(4, STR_TO_DATE('3-30-21', '%m-%d-%Y'), 4913645293497732, STR_TO_DATE('2-20-22', '%m-%d-%Y'), FALSE);
+
+/* Dumping data for table 'Repair_request_items */
+
+INSERT INTO Repair_request_items(repair_id, service_id, complete, price_paid)
+VALUES (1,1,TRUE,30),
+(1,2,FALSE, 50),
+(2,1,TRUE,30),
+(2,4,TRUE,60),
+(2,5,TRUE,60),
+(3,2,FALSE,30),
+(4,3,FALSE,30);
 
 
-/*Dumping data for table 'Serivces'*/
-
-INSERT INTO Services(service_id, name, expected_turnaround, price)
-VALUES (1, 'Quick Service', 2, 29.99),
-(2, 'Complete Service', 3, 44.99);

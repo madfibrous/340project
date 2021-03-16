@@ -62,12 +62,6 @@ const getRepairRequests =
   GROUP BY Repair_requests.repair_id`;
 const getRepair = 
   `SELECT repair_id, cust_id, DATE_FORMAT(request_date, '%Y-%m-%d') AS request_date, credit_card_num, DATE_FORMAT(credit_card_exp, '%Y-%m-%d') AS credit_card_exp FROM Repair_requests WHERE repair_id = ? and cust_id = ?`;
-const getRecentRepairs = 
-  `SELECT Repair_requests.repair_id, Repair_requests.request_date, Repair_requests.service_complete FROM Customers
-  INNER JOIN Repair_requests ON Repair_requests.cust_id = Customers.cust_id
-  WHERE Customers.cust_id=?
-  ORDER BY DESC
-  LIMIT 3`;
 const getRepairDetails = 
   `SELECT Services.name, Repair_request_items.complete, Repair_request_items.price_paid 
   FROM Repair_request_items
@@ -94,6 +88,10 @@ const searchCustomerByPhone =
   `SELECT *
   FROM Customers WHERE
   Customers.phone = ?`;
+const searchServiceByName = 
+  `SELECT * FROM Services WHERE name = ?`;
+const getService = `SELECT * FROM Services WHERE service_id = ?`;
+const getAllServices = `SELECT * FROM Services`;
 const insertBike = 
   `INSERT INTO Bicycles
   (make, model, size, color, type)
@@ -436,7 +434,12 @@ app.post('/customer',function(req,res, next){
 // ------------------ ADMIN ----------------------------
 
 app.get('/admin',function(req,res){
-  res.render('adminSignIn')
+  if (session.admin) {
+    res.render('admin')
+  }
+  else {
+    res.render('adminSignIn')
+  }
 })
 
 app.post('/admin',function(req,res, next){
@@ -455,9 +458,8 @@ app.post('/admin',function(req,res, next){
             }else{
                 res.render('/admin');
             }
-        })
-    };
-    
+        });
+    }
 
     if (req.body['addService']) {
       var {serviceName, expected_turnaround, servicePrice} = req.body;
@@ -481,6 +483,7 @@ app.post('/admin',function(req,res, next){
       return
     }
     if (req.body['adminPassword']==='1234') {
+      session.admin = true;
       res.render('admin')
       return
     }
@@ -531,6 +534,53 @@ app.post('/customerLookup', function(req, res, next) {
       }
     })
   }
+})
+
+app.get('/serviceLookup', function(req,res, next) {
+  mysql.pool.query(getAllServices, function(err, results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      var context = {};
+      context.services = results;
+      res.render('serviceLookup', context)
+    }
+  })
+})
+
+app.post('/serviceLookup', function(req, res, next) {
+  mysql.pool.query(searchServiceByName, req.body.name, function(err, results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      var context = {};
+      context.services = results;
+      res.render('serviceLookup', context)
+    }
+  })
+})
+
+app.get('/serviceUpdate', function(req, res, next) {
+  mysql.pool.query(getService, req.query.service_id, function(err, results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      let context = {};
+      let service = results[0]
+      let {service_id, expected_turnaround, price, name} = service
+      context.service_id = service_id;
+      context.expected_turnaround = expected_turnaround,
+      context.price = price;
+      context.name = name;
+      res.render('serviceUpdate', context)
+    }
+  })
 })
 
 app.use(function(req,res){

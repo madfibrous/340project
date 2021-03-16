@@ -1,0 +1,28 @@
+<link rel="stylesheet" href="client_style_serviceLookup.css">
+
+<div id="header">
+  <h1>Beave's Bikes</h1>
+</div>
+
+<nav id="navbar">
+  <div>
+    <a href="/">Home</a>
+    <a href="/bicycles">Bicycles</a>
+    <a href="/services">Services</a>
+    <a href="/customer">Customer Portal</a>
+    <a href="/admin"><b>Admin</b></a>
+  </div>
+</nav>
+
+<h2>Update Service: </h2>
+
+<form method="POST" id="updateService" action="/admin">
+    <input type="text" name="service_id" value="{{this.repair_id}}" disabled hidden>
+    <label for="name">Name:</label>
+    <input type="text" name="name" id="name" value="{{this.name}}">
+    <label for="expected_turnaround">Expected_turnaround:</label>
+    <input type="text" name="expected_turnaround" id="expected_turnaround" value={{this.expected_turnaround}}>
+    <label for="price">Price:</label>
+    <input type="text" name="price" id="price" value="{{this.price}}">
+    <input type="submit" name="addService" value="Add">
+</form><br>

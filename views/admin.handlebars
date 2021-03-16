@@ -47,6 +47,7 @@
 
 
 <h4>Update Repair Request Item:</h4>
+<span>**This will set Repair_request to complete when all associated Repair_request_items are complete**</span>
 <form method="POST" id="updateOrderItem" action="/admin">
     <label for="repair_id">Repair ID:</label>
     <input type="text" name="repair_id" id="repair_id">
@@ -75,3 +76,16 @@
     <input type="submit" name="updateBike" value="Update">
 </form><br>
 
+<h4>Update Service:</h4>
+<button onclick="location.href='/serviceLookup'">Update Services</button>
+<!--
+<form method="POST" id="updateService" action="/admin">
+    <label for="updateServiceName">Name:</label>
+    <input type="text" name="serviceName" id="serviceName">
+    <label for="expected_turnaround">Expected_turnaround:</label>
+    <input type="text" name="expected_turnaround" id="expected_turnaround">
+    <label for="servicePrice">Price:</label>
+    <input type="text" name="servicePrice" id="servicePrice">
+    <input type="submit" name="addService" value="Add">
+</form><br>
+-->

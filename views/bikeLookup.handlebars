@@ -1,0 +1,51 @@
+<link rel="stylesheet" href="client_style_serviceLookup.css">
+
+<div id="header">
+  <h1>Beave's Bikes</h1>
+</div>
+
+<nav id="navbar">
+  <div>
+    <a href="/">Home</a>
+    <a href="/bicycles">Bicycles</a>
+    <a href="/services">Services</a>
+    <a href="/customer">Customer Portal</a>
+    <a href="/admin"><b>Admin</b></a>
+  </div>
+</nav>
+
+<h2>Bike Search</h2>
+
+<form action="" method="POST">
+    <label for="make">Make</label>
+    <input type="text" id="make" name="make">
+    <label for="model">Model</label>
+    <input type="text" id="model" name="model">
+    <input type="submit" name="Find by Make/Model" value="Find by Make/Model">
+</form>
+
+<h2>Bikes: </h2>
+<table id="bikesTable">
+    <thead>
+        <th>Catalog ID</th>
+        <th>Make1</th>
+        <th>Model</th>
+        <th>Size</th>
+        <th>Color</th>
+        <th>Type</th>
+        <th></th>
+    </thead>
+    <tbody>
+        {{#each bicycles}}
+        <tr>
+          <td>{{this.catalog_id}}</td>
+          <td>{{this.make}}</td>
+          <td>{{this.model}}</td>
+          <td>{{this.size}}</td>
+          <td>{{this.color}}</td>
+          <td>{{this.type}}</td>
+          <td><button onclick="location.href='/bikeUpdate?catalog_id={{this.catalog_id}}'">Update</button></td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>

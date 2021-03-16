@@ -12,6 +12,8 @@
   </div>
 </nav>
 
+{{#if message}}<h2>{{message}}</h2>{{/if}}
+
 <h4>Customer ID Lookup</h4>
 <button onclick="location.href='/customerLookup'">Customer Lookup</button>
 <br><br>
@@ -57,35 +59,8 @@
 </form><br>
 
 <h4>Update Bike</h4>
-<form method="POST" id="updateBike" action="/admin">
-    <label for="updateBikeId">Update by Catalog Num:</label>
-    <input type="text" name="catalog_id" id="updateBikeId"><button>Search</button><br> 
-    <label for="updateBikeMake">Make:</label>
-    <input type="text" name="make" id="updateBikeMake">
-    <label for="updateBikeModel">Model:</label>
-    <input type="text" name="model" id="updateBikeModel"><br>
-    <label for="updateBikeSize">Size:</label>
-    <input type="text" name="size" id="updateBikeSize">
-    <label for="updateBikeType">Type:</label>
-    <select name="type" id="updateBikeType">
-        <option value="road">Road Bike</option>
-        <option value="mountain">Mountain Bike</option>
-    </select><br>
-    <label for="updateBikeColor">Color:</label>
-    <input type="text" name="color" id="updateBikeColor">
-    <input type="submit" name="updateBike" value="Update">
-</form><br>
+<button onclick="location.href='/bikeLookup'">Update Bikes</button>
+<br><br>
 
 <h4>Update Service:</h4>
 <button onclick="location.href='/serviceLookup'">Update Services</button>
-<!--
-<form method="POST" id="updateService" action="/admin">
-    <label for="updateServiceName">Name:</label>
-    <input type="text" name="serviceName" id="serviceName">
-    <label for="expected_turnaround">Expected_turnaround:</label>
-    <input type="text" name="expected_turnaround" id="expected_turnaround">
-    <label for="servicePrice">Price:</label>
-    <input type="text" name="servicePrice" id="servicePrice">
-    <input type="submit" name="addService" value="Add">
-</form><br>
--->

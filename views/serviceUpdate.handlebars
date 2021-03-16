@@ -16,8 +16,8 @@
 
 <h2>Update Service: </h2>
 
-<form method="POST" id="updateService" action="/admin">
-    <input type="text" name="service_id" value="{{this.repair_id}}" disabled hidden>
+<form method="POST" id="updateService" action="/serviceUpdate">
+    <input type="text" name="service_id" value="{{this.service_id}}" hidden>
     <label for="name">Name:</label>
     <input type="text" name="name" id="name" value="{{this.name}}">
     <label for="expected_turnaround">Expected_turnaround:</label>

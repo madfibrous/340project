@@ -30,13 +30,11 @@ var request = require('request');
 
 app.use(express.static('public'));
 
-//data manipulation queries for catalog page
-//getCatalog probably not needed to display catalog because
-//gear, clothing, bicycles have different attributes.
+// ---------------  queries for BIKE page ---------------------
 const getBicycles = "SELECT catalog_id, make, model, size FROM Bicycles WHERE Bicycles.catalog_id=?";
 const filterBicycles = "SELECT make, model, size FROM Bicycles WHERE make=?, model=?, size=?, price=?";
 
-// data manipulation queries for services page
+// ---------------- queries for SERVICES page--------------------
 const getServices = "SELECT service_id, name, price FROM Services";
 const createRequest = `INSERT INTO Repair_requests
   (cust_id, request_date, credit_card_num, credit_card_exp, service_complete) VALUES 
@@ -45,7 +43,7 @@ const createRequestItem = `INSERT INTO Repair_request_items
 (repair_id, service_id, complete, price_paid)
 VALUES (?, ?, False, ?)`;
 
-// data manipulation queries for customer portal
+//------------------ queries for CUSTOMER portal--------------------
 const signInQuery = "SELECT cust_id FROM Customers WHERE cust_id=?";
 const createCustomer = `INSERT INTO Customers (fname, lname, address, city, zip, phone) VALUES 
   (?, ?, ?, ?, ?, ?)`; 
@@ -78,7 +76,7 @@ const updateRepairRequest =
   WHERE repair_id = ?`;
 const deleteRepairRequest = "DELETE FROM Repair_requests WHERE repair_id = ?";
 
-// QUERIES FOR ADMIN PAGE
+// ------------------QUERIES FOR ADMIN PAGE---------------------
 const getAllCustomers = `SELECT * FROM Customers`;
 const searchCustomerByName = 
   `SELECT *
@@ -92,6 +90,11 @@ const searchServiceByName =
   `SELECT * FROM Services WHERE name = ?`;
 const getService = `SELECT * FROM Services WHERE service_id = ?`;
 const getAllServices = `SELECT * FROM Services`;
+const getAllBicycles = `SELECT * FROM Bicycles`;
+const getBicyclesByMakeModel = 
+  `SELECT * FROM Bicycles
+    WHERE make = ? AND model = ?`;
+const getBicycleByID = `SELECT * FROM Bicycles WHERE catalog_id = ?`;
 const insertBike = 
   `INSERT INTO Bicycles
   (make, model, size, color, type)
@@ -105,12 +108,11 @@ const updateRepairRequestItems =
   WHERE Repair_request_items.repair_id = ? OR Repair_request_items.service_id = ?`;
 const updateBicycle = 
   `UPDATE Bicycles
-  SET make = ?, model = ?, size = ?, color = ?, type = ?,
-  color = ?, price = ?, qty = ?,
+  SET make = ?, model = ?, size = ?, color = ?, type = ?
   WHERE Bicycles.catalog_id = ?`;
 const updateService = 
   `UPDATE Services
-  SET name = ?, expected_turnaround = ?, price = ?,
+  SET name = ?, expected_turnaround = ?, price = ?
   WHERE Services.service_id = ?`;
 
 app.get('/',function(req,res){
@@ -579,6 +581,80 @@ app.get('/serviceUpdate', function(req, res, next) {
       context.price = price;
       context.name = name;
       res.render('serviceUpdate', context)
+    }
+  })
+})
+
+app.post('/serviceUpdate', function(req, res, next) {
+  let {name, expected_turnaround, price, service_id} = req.body;
+  let inputs = [name, expected_turnaround, price, service_id];
+  mysql.pool.query(updateService, inputs, function(err, results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      var context = {};
+      context.message = 'Service ID :' + service_id +' has been updated!';
+      res.render('admin', context)
+    }
+  })
+})
+
+app.get('/bikeLookup', function(req, res) {
+  mysql.pool.query(getAllBicycles, function (err, results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      let context = {};
+      context.bicycles = results;
+      res.render('bikeLookup', context)
+    }
+  })
+})
+
+app.post('/bikeLookup', function(req, res) {
+  mysql.pool.query(getBicyclesByMakeModel, [req.body.make, req.body.model], function(err, results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      let context = {};
+      context.bicycles = results;
+      res.render('bikeLookup', context)
+    }
+  })
+})
+
+app.get('/bikeUpdate', function(req, res){
+  mysql.pool.query(getBicycleByID, req.query.catalog_id, function(err, results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      let context = {}
+      context.bicycle = results
+      res.render('bikeUpdate', context)
+    }
+  })
+})
+
+app.post('/bikeUpdate', function(req, res, next) {
+  let {make, model, size, color, type, catalog_id} = req.body
+  let inputs = [make, model, size, color, type, catalog_id]
+  mysql.pool.query(updateBicycle, inputs, function(err, results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      let context = {};
+      context.message = 'Catalog ID: '+catalog_id+' has been updated!';
+      res.render('admin', context)
     }
   })
 })

@@ -1,0 +1,46 @@
+<link rel="stylesheet" href="client_style_serviceLookup.css">
+
+<div id="header">
+  <h1>Beave's Bikes</h1>
+</div>
+
+<nav id="navbar">
+  <div>
+    <a href="/">Home</a>
+    <a href="/bicycles">Bicycles</a>
+    <a href="/services">Services</a>
+    <a href="/customer">Customer Portal</a>
+    <a href="/admin"><b>Admin</b></a>
+  </div>
+</nav>
+
+<h2>Update Bike: </h2>
+{{#each bicycle}}
+
+<form method="POST" id="updateBike" action="/bikeUpdate">
+    <label for="catalog_id"></label>
+    <input type="text" name="catalog_id" id="catalog_id" value="{{this.catalog_id}}" hidden>
+    <label for="updateBikeMake">Make:</label>
+    <input type="text" name="make" id="updateBikeMake" value="{{this.make}}">
+    <label for="updateBikeModel">Model:</label>
+    <input type="text" name="model" id="updateBikeModel" value="{{this.model}}"><br>
+    <label for="updateBikeSize">Size:</label>
+    <select name="size" id="updateBikeSize">
+        <option value="{{this.size}}">{{this.size}}</option>
+        <option value="S">S</option>
+        <option value="M">M</option>
+        <option value="L">L</option>
+        <option value="XL">XL</option>
+    </select>
+    <label for="updateBikeType">Type:</label>
+    <select name="type" id="updateBikeType">
+        <option value="{{this.type}}">{{this.type}}</option>
+        <option value="R">Road Bike</option>
+        <option value="M">Mountain Bike</option>
+    </select><br>
+    <label for="updateBikeColor">Color:</label>
+    <input type="text" name="color" id="updateBikeColor" value={{this.color}}>
+    <input type="submit" name="updateBike" value="Update">
+</form>
+
+{{/each}}

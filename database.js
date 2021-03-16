@@ -33,6 +33,7 @@ app.use(express.static('public'));
 // ---------------  queries for BIKE page ---------------------
 const getBicycles = "SELECT catalog_id, make, model, size FROM Bicycles WHERE Bicycles.catalog_id=?";
 const filterBicycles = "SELECT make, model, size FROM Bicycles WHERE make=?, model=?, size=?, price=?";
+const getMakes = `SELECT make FROM Bicycles GROUP BY make ORDER BY make ASC`;
 
 // ---------------- queries for SERVICES page--------------------
 const getServices = "SELECT service_id, name, price FROM Services";
@@ -135,12 +136,11 @@ app.get('/',function(req,res){
     res.render('home',context)
 })
 
-app.get('/bicycles', function(req,res){
+app.get('/bicycles', function(req,res,next){
     var context = {};
     var callbackCount = 0;
     
     function handleRenderingOfBicycles(error,results,fields){
-        console.log("results are: ", results);
         context.bikes=results;
         complete();
     };
@@ -151,17 +151,26 @@ app.get('/bicycles', function(req,res){
             res.render('bicycles',context);
         }
     };
-
+    mysql.pool.query(getMakes, function(err,results) {
+      if (err) {
+        console.log(err)
+        next(err)
+      }
+      else {
+        context.makes = results;
+        if (req.query.make){
+          var sql = "SELECT * FROM Bicycles WHERE make = ?";
+          var inserts = [req.query.make, req.query.size, req.query.type];
+          mysql.pool.query(sql, inserts, handleRenderingOfBicycles);
+        }
+        else{
+          var sql = "SELECT * FROM Bicycles";
+          mysql.pool.query(sql, handleRenderingOfBicycles);
+      }
+      }
+    })
     /*Sort bicycles by type*/
-    if (req.query.make){
-        var sql = "SELECT catalog_id, make, model, size, type FROM Bicycles WHERE make = ?";
-        var inserts = [req.query.make];
-        mysql.pool.query(sql, inserts, handleRenderingOfBicycles);
-    }
-    else{
-        var sql = "SELECT catalog_id, make, model, size FROM Bicycles";
-        mysql.pool.query(sql, handleRenderingOfBicycles);
-    }
+    
 })
 
 app.get('/bikeItem', function(req,res){

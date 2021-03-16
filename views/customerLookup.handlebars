@@ -1,0 +1,61 @@
+<link rel="stylesheet" href="client_style_customerLookup.css">
+
+<div id="header">
+  <h1>Beave's Bikes</h1>
+</div>
+
+<nav id="navbar">
+  <div>
+    <a href="/">Home</a>
+    <a href="/bicycles">Bicycles</a>
+    <a href="/services">Services</a>
+    <a href="/customer">Customer Portal</a>
+    <a href="/admin"><b>Admin</b></a>
+  </div>
+</nav>
+
+<h2>Customers Search</h2>
+
+<form action="" method="POST">
+    <label for="fname">First Name</label>
+    <input type="text" id="fname" name="fname">
+    <label for="lname">Last Name</label>
+    <input type="text" id="lname" name="lname">
+    <input type="submit" name="Find by Name" value="Find by Name">
+</form>
+
+<br>
+<form action="" method="POST">
+    <label for="phone">Phone #</label>
+    <input type="text" id="phone" name="phone">
+    <input type="submit" name="Find by Phone" value="Find by Phone">
+</form>
+
+<h2>Customers</h2>
+
+<table>
+    <thead>
+        <th>cust_id</th>
+        <th>first name</th>
+        <th>last name</th>
+        <th>address</th>
+        <th>city</th>
+        <th>zip</th>
+        <th>phone</th>
+        <th>primary bike</th>
+    </thead>
+    <tbody>
+    {{#each customers}}
+        <tr>
+            <td>{{this.cust_id}}</td>
+            <td>{{this.fname}}</td>
+            <td>{{this.lname}}</td>
+            <td>{{this.address}}</td>
+            <td>{{this.city}}</td>
+            <td>{{this.zip}}</td>
+            <td>{{this.phone}}</td>
+            {{#if this.primary_bike}}<td>{{this.primary_bike}}</td>{{else}} <td>N/A</td>{{/if}}
+        </tr>
+    {{/each}}       
+    </tbody>
+</table>

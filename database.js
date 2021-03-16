@@ -96,8 +96,8 @@ const searchCustomerByPhone =
   Customers.phone = ?`;
 const insertBike = 
   `INSERT INTO Bicycles
-  (make, model, size, color, type, price, qty)
-  VALUES (?, ?, ?, ?, ?,?, ?)`;
+  (make, model, size, color, type)
+  VALUES (?, ?, ?, ?, ?)`;
 const insertService =
   `INSERT INTO Services (name, expected_turnaround, price)
   VALUES (?, ?, ?)`;
@@ -439,22 +439,21 @@ app.get('/admin',function(req,res){
   res.render('adminSignIn')
 })
 
-app.post('/admin',function(req,res){
+app.post('/admin',function(req,res, next){
     if (req.body['searchCustomer']){
         //var sql = SELECT statement for customer
         //var inserts
         //sql
     }
     if (req.body['addBike']){
-        var sql = "INSERT INTO Bicycles (make, model, size, color, type) VALUES (?,?,?,?,?,?,?)";
         var inserts = [req.body.make, req.body.model, req.body.size, req.body.color, req.body.type];
-        sql = mysql.pool.query(sql, inserts,function(error, results,fields){
+        mysql.pool.query(insertBike, inserts, function(error, results,fields){
             if(error){
                 console.log(JSON.stringify(error));
                 res.write(JSON.stringify(error));
-                res.end();
+                next(error);
             }else{
-                res.redirect('/admin');
+                res.render('/admin');
             }
         });
     }

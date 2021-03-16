@@ -85,10 +85,15 @@ const updateRepairRequest =
 const deleteRepairRequest = "DELETE FROM Repair_requests WHERE repair_id = ?";
 
 // QUERIES FOR ADMIN PAGE
-const searchCustomer = 
-  `SELECT cust_id, fname, lname, address, city, zip, phone
+const getAllCustomers = `SELECT * FROM Customers`;
+const searchCustomerByName = 
+  `SELECT *
   FROM Customers WHERE
-  Customers.fname = ? AND Customers.lname = ? and Customers.phone = ?`;
+  Customers.fname = ? AND Customers.lname = ?`;
+const searchCustomerByPhone = 
+  `SELECT *
+  FROM Customers WHERE
+  Customers.phone = ?`;
 const insertBike = 
   `INSERT INTO Bicycles
   (make, model, size, color, type, price, qty)
@@ -153,15 +158,399 @@ app.get('/bikeItem', function(req,res){
     res.render('bikeItem', context)
 });
 
-app.post('/admin', function(req,res) {
-  var context = {};
-  if (req.body['adminPassword']==='1234') {
-    res.render('admin',context)
+app.get('/services',function(req,res){
+  mysql.pool.query(getServices, function(err,results){
+    var context = {}
+    var services = []
+    for (let row of results||false) {
+      services.push({"name":row.name,"price":row.price});
+    }
+    context.services = services
+    if (session.cust_id) {
+      context.cust_id = session.cust_id
+    }
+    res.render('services',context)
+  })
+})
+
+app.get('/serviceRequest',function(req,res){
+  if (!session.cust_id) {
+    var context = {}
+    context.message = "You must sign in to create a service request";
+    res.render('signIn',context)
+    return
   }
-  else {
-    res.render('adminSignIn', context)
+  mysql.pool.query(getServices, function(err,results){
+    var context = {}
+    context.cust_id = session.cust_id
+    var services = []
+    for (let row of results||false) {
+      services.push({"id":row.service_id,"name":row.name,"price":row.price});
+    }
+    context.services = services
+    res.render('serviceRequest',context)
+  })
+})
+
+app.post('/serviceRequest',function(req,res,next) {
+  // services is [{id:service_id,price:price_paid}]
+  var {cust_id, request_date, credit_card_num, credit_card_exp, services} = req.body
+  // insert into Repair_requests
+  var services_count = services.length
+  var current_count = 1
+  mysql.pool.query(createRequest,[cust_id, request_date, credit_card_num, credit_card_exp],function(err,results) {
+    if (!err) {
+      // insert Repair_request_items
+      repair_id = results.insertId;
+      for (let service of services) {
+        mysql.pool.query(createRequestItem,[repair_id, service.id, service.price], function(err,results) {
+          if (!err) {
+            if (current_count >= services_count) {
+              res.setHeader('Content-Type','application/json')
+              res.send({'repair_id':repair_id})
+            }
+            else {
+              current_count++
+            }
+          }
+          else {
+            console.log(err)
+            next(err)
+          }
+          })
+        }
+      }
+    else {
+      console.log(err)
+      next(err)
+    }
+  })
+})
+
+// ------------------- CUSTOMER -----------------------------------
+
+app.post('/getRepair', function(req,res,next) {
+  // return repair that matches provided repair_id. also make sure id matches current customer
+  mysql.pool.query(getRepair, [req.body.repair_id, session.cust_id], function(err, results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      res.send(results)
+    }
+  })
+})
+
+app.get('/service_history',function(req,res,next){
+  var context= {};
+  mysql.pool.query(getRepairRequests,session.cust_id,function(err,results){
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      context.services = results
+      res.render('service_history',context)
+    }
+    
+  })
+})
+
+app.post('/service_history', function(req,res,next) {
+  mysql.pool.query(getRepairDetails,req.body.repair_id, function(err,results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      res.send(results)
+    }
+  })
+})
+
+app.put('/service_history', function(req,res,next) {
+  //first check that the repairs haven't started already. borrow numberRepairsCompleteQuery
+  // req needs: credit_card_num, credit_card_exp, request_date, repair_id
+  var {credit_card_num, credit_card_exp, request_date, repair_id} = req.body
+  numberRepairsCompleteQuery(req).then(function(obj) {
+    if (obj.numberRepaired > 0) {
+      res.setHeader('Content-Type','text/plain')
+      res.send('Repairs have been started, cannot update anymore. You have already been charged!')
+      return
+    }
+    else {
+      //update repair request billing
+      mysql.pool.query(updateRepairRequest,[credit_card_num, credit_card_exp, request_date, repair_id], function(err, results) {
+        if (err) {
+          console.log(err)
+          next(err)
+        }
+        else {
+          res.setHeader('Content-Type','text/plain');
+          res.send('Repair ID:'+repair_id+' has successfully been updated!')
+        }
+      })
+    }})
+})
+
+app.delete('/service_history', function(req,res,next) {
+  // first check that repairs haven't started already, if so then it can't be cancelled
+  numberRepairsCompleteQuery(req).then(function(obj) {
+    if (obj.numberRepaired > 0) {
+      res.setHeader('Content-Type','text/plain')
+      res.send('Repairs have been started, cannot cancel repair!')
+      return
+    }
+    else {
+      // send a delete query
+      deleteRepairQuery(obj.repair_id, res, next)
+    }
+  }).catch(function(err){
+    next(err)
+  })
+})
+
+function deleteRepairQuery(repair_id, res, next) {
+  // deletes an order. sends a message if it was successful.
+  mysql.pool.query(deleteRepairRequest,[repair_id],function(err,results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      res.setHeader('Content-Type','text/plain');
+      res.send('Repair ID:'+repair_id+' has successfully been cancelled!')
+    }
+  })
+}
+
+function numberRepairsCompleteQuery(req) {
+  // creates promise that returns number of repairs already finished
+  return new Promise(function(resolve, reject) {
+    mysql.pool.query(numberRepaired,[req.body.repair_id], function(err,results) {
+      if (err) {
+        console.log(err)
+        reject(err)
+      }
+      else {
+        resolve({'numberRepaired':results[0].number_repaired,'repair_id':req.body.repair_id})
+      }
+    })
+  })
+}
+
+app.get('/customer',function(req,res){
+  var context = {}
+  if (!session.cust_id) {
+    res.render('signIn',context)
+    return
+  }
+  mysql.pool.query(getCustomer,session.cust_id,function(err,results) {
+    if (err) {
+      console.log(err);
+      next(err)
+    }
+    else {
+      context.fname = results[0].fname;
+      context.lname = results[0].lname;
+      res.render('customer',context)
+    }
+  })
+})
+
+app.post('/customer',function(req,res, next){
+  var context = {}
+  if (req.body['Create Account']) {
+    var {fname, lname, address, city, zip, phone} = req.body;
+    mysql.pool.query(createCustomer, [fname,lname,address,city,zip,phone], function(err,results){
+      if (err) {
+        console.log(err);
+        next(err)
+      }
+      else {
+        session.cust_id = results.insertId
+        context.fname = fname;
+        context.lname = lname;
+        res.render('customer',context)
+      }
+    })
+  }
+  if (req.body['Sign in']) {
+    let cust_id = req.body.cust_id;
+    mysql.pool.query(getCustomer,cust_id,function(err,results) {
+      if (err) {
+        console.log(err);
+        next(err)
+      }
+      else {
+        session.cust_id = cust_id;
+        context.fname = results[0].fname;
+        context.lname = results[0].lname;
+        res.render('customer',context)
+        return
+      }
+    })
+  }
+  if (req.body['Edit Profile']) {
+    // get info about the customer
+    mysql.pool.query(getCustomer,session.cust_id,function(err,results) {
+      if (err) {
+        console.log(err);
+        next(err)
+      }
+      else {
+        // add cust info to context
+        let custInfo = results[0]
+        for (const prop in custInfo) {
+          context[prop] = custInfo[prop]
+        }
+        // render 'editInfo' view with context
+        res.render('editProfile',context)
+        return
+      }
+    })
+  }
+  if (req.body['Update Profile']) {
+    // deconstruct body
+    let {fname, lname, address, city, zip, phone} = req.body
+    // send mysql query for update
+    mysql.pool.query(updateCustomer, [fname, lname, address, city, zip, phone, session.cust_id], function(err,results) {
+      // let customer know update was successful or not
+      if (err) {
+        console.log(err)
+        next(err)
+      }
+      else {
+        context.message = "Your customer profile was updated successfully!";
+        context.fname = fname;
+        context.lname = lname;
+        res.render('customer',context)
+        return
+      }
+    })
+    
   }
 })
+
+// ------------------ ADMIN ----------------------------
+
+app.get('/admin',function(req,res){
+  res.render('adminSignIn')
+})
+
+app.post('/admin',function(req,res){
+    if (req.body['searchCustomer']){
+        //var sql = SELECT statement for customer
+        //var inserts
+        //sql
+    }
+    if (req.body['addBike']){
+        var sql = "INSERT INTO Bicycles (make, model, size, color, type) VALUES (?,?,?,?,?,?,?)";
+        var inserts = [req.body.make, req.body.model, req.body.size, req.body.color, req.body.type];
+        sql = mysql.pool.query(sql, inserts,function(error, results,fields){
+            if(error){
+                console.log(JSON.stringify(error));
+                res.write(JSON.stringify(error));
+                res.end();
+            }else{
+                res.redirect('/admin');
+            }
+        });
+    }
+
+    if (req.body['addService']) {
+      var {serviceName, expected_turnaround, servicePrice} = req.body;
+      mysql.pool.query(insertService,[serviceName,expected_turnaround,servicePrice], function(err, results){
+        if (!err) {
+          if (results.insertId) {
+            var context = {}
+            context.message = 'Successfully Inserted';
+            res.render('admin',context)
+          }
+          else {
+            context.message = 'Not Successfully Inserted';
+            res.render('admin',context)
+          }
+        }
+        else {
+          console.log(err)
+          next(err)          
+        }
+      })
+      return
+    }
+    if (req.body['adminPassword']==='1234') {
+      res.render('admin')
+      return
+    }
+    else {
+      res.render('adminSignIn')
+      return
+    }
+})
+
+app.get('/customerLookup', function(req,res, next) {
+  mysql.pool.query(getAllCustomers, function(err,results) {
+    if (err) {
+      console.log(err)
+      next(err)
+    }
+    else {
+      var context = {};
+      context.customers = results;
+      res.render('customerLookup', context)
+    }
+  })
+})
+
+app.post('/customerLookup', function(req, res, next) {
+  if (req.body['Find by Name']) {
+    mysql.pool.query(searchCustomerByName, [req.body.fname, req.body.lname], function(err, results) {
+      if (err) {
+        console.log(err)
+        next(err)
+      }
+      else {
+        var context = {};
+        context.customers = results;
+        res.render('customerLookup', context)
+      }
+    })
+  } 
+  if (req.body['Find by Phone']) {
+    mysql.pool.query(searchCustomerByPhone, [req.body.phone], function(err, results) {
+      if (err) {
+        console.log(err)
+        next(err)
+      }
+      else {
+        var context = {};
+        context.customers = results;
+        res.render('customerLookup', context)
+      }
+    })
+  }
+})
+
+app.use(function(req,res){
+  res.status(404);
+  res.render('404');
+});
+
+app.use(function(err, req, res, next){
+  console.error(err.stack);
+  res.type('plain/text');
+  res.status(500);
+  res.render('500');
+});
+
+app.listen(app.get('port'), function(){
+  console.log('Express started on http://localhost:' + app.get('port') + '; press Ctrl-C to terminate.');
+});
+
+/*
+
 
 app.get('/cart', function(req,res){
     var context = {};
@@ -393,346 +782,4 @@ function numberShippedQuery(req) {
   })
 }
 
-app.get('/admin',function(req,res){
-  res.render('adminSignIn')
-})
-
-app.get('/services',function(req,res){
-  mysql.pool.query(getServices, function(err,results){
-    var context = {}
-    var services = []
-    for (let row of results||false) {
-      services.push({"name":row.name,"price":row.price});
-    }
-    context.services = services
-    if (session.cust_id) {
-      context.cust_id = session.cust_id
-    }
-    res.render('services',context)
-  })
-})
-
-app.get('/serviceRequest',function(req,res){
-  if (!session.cust_id) {
-    var context = {}
-    context.message = "You must sign in to create a service request";
-    res.render('signIn',context)
-    return
-  }
-  mysql.pool.query(getServices, function(err,results){
-    var context = {}
-    context.cust_id = session.cust_id
-    var services = []
-    for (let row of results||false) {
-      services.push({"id":row.service_id,"name":row.name,"price":row.price});
-    }
-    context.services = services
-    res.render('serviceRequest',context)
-  })
-})
-
-app.post('/serviceRequest',function(req,res,next) {
-  // services is [{id:service_id,price:price_paid}]
-  var {cust_id, request_date, credit_card_num, credit_card_exp, services} = req.body
-  // insert into Repair_requests
-  var services_count = services.length
-  var current_count = 1
-  mysql.pool.query(createRequest,[cust_id, request_date, credit_card_num, credit_card_exp],function(err,results) {
-    if (!err) {
-      // insert Repair_request_items
-      repair_id = results.insertId;
-      for (let service of services) {
-        mysql.pool.query(createRequestItem,[repair_id, service.id, service.price], function(err,results) {
-          if (!err) {
-            if (current_count >= services_count) {
-              res.setHeader('Content-Type','application/json')
-              res.send({'repair_id':repair_id})
-            }
-            else {
-              current_count++
-            }
-          }
-          else {
-            console.log(err)
-            next(err)
-          }
-          })
-        }
-      }
-    else {
-      console.log(err)
-      next(err)
-    }
-  })
-})
-
-app.post('/getRepair', function(req,res,next) {
-  // return repair that matches provided repair_id. also make sure id matches current customer
-  mysql.pool.query(getRepair, [req.body.repair_id, session.cust_id], function(err, results) {
-    if (err) {
-      console.log(err)
-      next(err)
-    }
-    else {
-      res.send(results)
-    }
-  })
-})
-
-app.get('/service_history',function(req,res,next){
-  var context= {};
-  mysql.pool.query(getRepairRequests,session.cust_id,function(err,results){
-    if (err) {
-      console.log(err)
-      next(err)
-    }
-    else {
-      context.services = results
-      res.render('service_history',context)
-    }
-    
-  })
-})
-
-app.post('/service_history', function(req,res,next) {
-  mysql.pool.query(getRepairDetails,req.body.repair_id, function(err,results) {
-    if (err) {
-      console.log(err)
-      next(err)
-    }
-    else {
-      res.send(results)
-    }
-  })
-})
-
-app.put('/service_history', function(req,res,next) {
-  //first check that the repairs haven't started already. borrow numberRepairsCompleteQuery
-  // req needs: credit_card_num, credit_card_exp, request_date, repair_id
-  var {credit_card_num, credit_card_exp, request_date, repair_id} = req.body
-  numberRepairsCompleteQuery(req).then(function(obj) {
-    if (obj.numberRepaired > 0) {
-      res.setHeader('Content-Type','text/plain')
-      res.send('Repairs have been started, cannot update anymore. You have already been charged!')
-      return
-    }
-    else {
-      //update repair request billing
-      mysql.pool.query(updateRepairRequest,[credit_card_num, credit_card_exp, request_date, repair_id], function(err, results) {
-        if (err) {
-          console.log(err)
-          next(err)
-        }
-        else {
-          res.setHeader('Content-Type','text/plain');
-          res.send('Repair ID:'+repair_id+' has successfully been updated!')
-        }
-      })
-    }})
-})
-
-app.delete('/service_history', function(req,res,next) {
-  // first check that repairs haven't started already, if so then it can't be cancelled
-  numberRepairsCompleteQuery(req).then(function(obj) {
-    if (obj.numberRepaired > 0) {
-      res.setHeader('Content-Type','text/plain')
-      res.send('Repairs have been started, cannot cancel repair!')
-      return
-    }
-    else {
-      // send a delete query
-      deleteRepairQuery(obj.repair_id, res, next)
-    }
-  }).catch(function(err){
-    next(err)
-  })
-})
-
-function deleteRepairQuery(repair_id, res, next) {
-  // deletes an order. sends a message if it was successful.
-  mysql.pool.query(deleteRepairRequest,[repair_id],function(err,results) {
-    if (err) {
-      console.log(err)
-      next(err)
-    }
-    else {
-      res.setHeader('Content-Type','text/plain');
-      res.send('Repair ID:'+repair_id+' has successfully been cancelled!')
-    }
-  })
-}
-
-function numberRepairsCompleteQuery(req) {
-  // creates promise that returns number of repairs already finished
-  return new Promise(function(resolve, reject) {
-    mysql.pool.query(numberRepaired,[req.body.repair_id], function(err,results) {
-      if (err) {
-        console.log(err)
-        reject(err)
-      }
-      else {
-        resolve({'numberRepaired':results[0].number_repaired,'repair_id':req.body.repair_id})
-      }
-    })
-  })
-}
-
-app.get('/customer',function(req,res){
-  var context = {}
-  if (!session.cust_id) {
-    res.render('signIn',context)
-    return
-  }
-  mysql.pool.query(getCustomer,session.cust_id,function(err,results) {
-    if (err) {
-      console.log(err);
-      next(err)
-    }
-    else {
-      context.fname = results[0].fname;
-      context.lname = results[0].lname;
-      res.render('customer',context)
-    }
-  })
-})
-
-app.post('/customer',function(req,res, next){
-  var context = {}
-  if (req.body['Create Account']) {
-    var {fname, lname, address, city, zip, phone} = req.body;
-    mysql.pool.query(createCustomer, [fname,lname,address,city,zip,phone], function(err,results){
-      if (err) {
-        console.log(err);
-        next(err)
-      }
-      else {
-        session.cust_id = results.insertId
-        context.fname = fname;
-        context.lname = lname;
-        res.render('customer',context)
-      }
-    })
-  }
-  if (req.body['Sign in']) {
-    let cust_id = req.body.cust_id;
-    mysql.pool.query(getCustomer,cust_id,function(err,results) {
-      if (err) {
-        console.log(err);
-        next(err)
-      }
-      else {
-        session.cust_id = cust_id;
-        context.fname = results[0].fname;
-        context.lname = results[0].lname;
-        res.render('customer',context)
-        return
-      }
-    })
-  }
-  if (req.body['Edit Profile']) {
-    // get info about the customer
-    mysql.pool.query(getCustomer,session.cust_id,function(err,results) {
-      if (err) {
-        console.log(err);
-        next(err)
-      }
-      else {
-        // add cust info to context
-        let custInfo = results[0]
-        for (const prop in custInfo) {
-          context[prop] = custInfo[prop]
-        }
-        // render 'editInfo' view with context
-        res.render('editProfile',context)
-        return
-      }
-    })
-  }
-  if (req.body['Update Profile']) {
-    // deconstruct body
-    let {fname, lname, address, city, zip, phone} = req.body
-    // send mysql query for update
-    mysql.pool.query(updateCustomer, [fname, lname, address, city, zip, phone, session.cust_id], function(err,results) {
-      // let customer know update was successful or not
-      if (err) {
-        console.log(err)
-        next(err)
-      }
-      else {
-        context.message = "Your customer profile was updated successfully!";
-        context.fname = fname;
-        context.lname = lname;
-        res.render('customer',context)
-        return
-      }
-    })
-    
-  }
-})
-
-app.post('/admin',function(req,res){
-    if (req.body['searchCustomer']){
-        //var sql = SELECT statement for customer
-        //var inserts
-        //sql
-    }
-    if (req.body['addBike']){
-        var sql = "INSERT INTO Bicycles (make, model, size, color, type) VALUES (?,?,?,?,?,?,?)";
-        var inserts = [req.body.make, req.body.model, req.body.size, req.body.color, req.body.type];
-        sql = mysql.pool.query(sql, inserts,function(error, results,fields){
-            if(error){
-                console.log(JSON.stringify(error));
-                res.write(JSON.stringify(error));
-                res.end();
-            }else{
-                res.redirect('/admin');
-            }
-        });
-    }
-
-    if (req.body['addService']) {
-      var {serviceName, expected_turnaround, servicePrice} = req.body;
-      mysql.pool.query(insertService,[serviceName,expected_turnaround,servicePrice], function(err, results){
-        if (!err) {
-          if (results.insertId) {
-            var context = {}
-            context.message = 'Successfully Inserted';
-            res.render('admin',context)
-          }
-          else {
-            context.message = 'Not Successfully Inserted';
-            res.render('admin',context)
-          }
-        }
-        else {
-          console.log(err)
-          next(err)          
-        }
-      })
-      return
-    }
-    if (req.body['adminPassword']==='1234') {
-      res.render('admin')
-      return
-    }
-    else {
-      res.render('adminSignIn')
-      return
-    }
-})
-
-app.use(function(req,res){
-  res.status(404);
-  res.render('404');
-});
-
-app.use(function(err, req, res, next){
-  console.error(err.stack);
-  res.type('plain/text');
-  res.status(500);
-  res.render('500');
-});
-
-app.listen(app.get('port'), function(){
-  console.log('Express started on http://localhost:' + app.get('port') + '; press Ctrl-C to terminate.');
-});
+*/
